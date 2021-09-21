@@ -35,7 +35,7 @@ class DecoderLayer(nn.Module):
         y = self.dropout(self.activation(self.conv1(y.transpose(-1,1))))
         y = self.dropout(self.conv2(y).transpose(-1,1))
 
-        return self.norm3(x+y), None
+        return self.norm3(x+y)
 
 class Decoder(nn.Module):
     def __init__(self, layers, norm_layer=None):
@@ -44,12 +44,10 @@ class Decoder(nn.Module):
         self.norm = norm_layer
 
     def forward(self, x, cross, x_mask=None, cross_mask=None):
-        losses = []
         for layer in self.layers:
-            x, loss = layer(x, cross, x_mask=x_mask, cross_mask=cross_mask)
-            losses.append(loss)
+            x = layer(x, cross, x_mask=x_mask, cross_mask=cross_mask)
 
         if self.norm is not None:
             x = self.norm(x)
 
-        return x, losses
+        return x

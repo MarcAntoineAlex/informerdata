@@ -31,8 +31,8 @@ class Informer(nn.Module):
             [
                 EncoderLayer(
                     AttentionLayer(Attn(False, factor, attention_dropout=dropout, output_attention=output_attention,
-                                        use_cho=self.use_cho, d_model=512, L_K=96),
-                                   d_model, n_heads, mix=False, args=self.args),
+                                        d_model=512, L_K=96),
+                                   d_model, n_heads, mix=False),
                     d_model,
                     d_ff,
                     dropout=dropout,
@@ -51,10 +51,10 @@ class Informer(nn.Module):
             [
                 DecoderLayer(
                     AttentionLayer(Attn(True, factor, attention_dropout=dropout, output_attention=False,
-                                        use_cho=self.use_cho, d_model=512, L_K=96),
-                                   d_model, n_heads, mix=mix, args=self.args),
+                                        d_model=512, L_K=96),
+                                   d_model, n_heads, mix=mix),
                     AttentionLayer(FullAttention(False, factor, attention_dropout=dropout, output_attention=False),
-                                   d_model, n_heads, mix=False, args=self.args),
+                                   d_model, n_heads, mix=False),
                     d_model,
                     d_ff,
                     dropout=dropout,

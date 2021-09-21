@@ -165,7 +165,7 @@ class ProbAttention(nn.Module):
         # update the context with selected top_k queries
         context, attn = self._update_context(context, values, scores_top, index, L_Q, attn_mask)
 
-        return context.transpose(2, 1).contiguous(), attn, loss
+        return context.transpose(2, 1).contiguous(), attn
 
 
 class AttentionLayer(nn.Module):
@@ -230,10 +230,6 @@ class AttentionLayer(nn.Module):
         )
         out = attn_out[0]
         attn = attn_out[1]
-        if type(self.inner_attention) == ProbAttention:
-            loss = attn_out[2]
-        else:
-            loss = None
 
         if self.mix:
             out = out.transpose(2,1).contiguous()
@@ -245,6 +241,6 @@ class AttentionLayer(nn.Module):
             result = self.out_projection[0](out[:, :, :d_model-L_A])
             for i in range(1, self.args.world_size):
                 result += self.out_projection[i](out[:, :, d_model - L_A:])
-            return result, attn, loss
+            return result, attn,
         else:
-            return self.out_projection(out), attn, loss
+            return self.out_projection(out), attn
