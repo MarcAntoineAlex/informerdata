@@ -85,16 +85,6 @@ class Informer(nn.Module):
         else:
             return dec_out[:, -self.pred_len:, :]  # [B, L, D]
 
-    def H(self):
-        for n, p in self.named_parameters():
-            if "proj." in n:
-                yield p
-
-    def named_H(self):
-        for n, p in self.named_parameters():
-            if "proj." in n:
-                yield n, p
-
     def W(self):
         for n, p in self.named_parameters():
             if 'arch' in n:
@@ -108,6 +98,9 @@ class Informer(nn.Module):
                 pass
             else:
                 yield n, p
+
+    def A(self):
+        yield self.arch
 
 
 class InformerStack(nn.Module):
