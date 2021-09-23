@@ -31,6 +31,7 @@ class Architect():
             self.inverse_transform = inverse_transform
 
     def critere(self, pred, true, data_count, reduction='mean'):
+        print(pred.shape, (self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5).shape)
         return self.criterion(pred * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5,
                               true * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5,
                               reduction=reduction)
