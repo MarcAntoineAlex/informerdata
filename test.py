@@ -15,15 +15,10 @@ class MyModel(nn.Module):
     def forward(self, x):
         return self.L(x)
 
-m = MyModel()
-for p in m.parameters():
-    print(p)
-    p.data.sub_(2, 3)
-    print(p)
-a = torch.ones(3, 4, 5) * 3
-b = torch.ones(3, 4, 5) * 2
-a.requires_grad = True
-print(a.sub(b, b))
+a = torch.ones(3, 4)
+b = torch.ones(2, 3, 4)*2
+crit = torch.nn.MSELoss()
+print(crit(a, b))
 # data_set = Dataset_ETT_hour(
 #             root_path="/Users/marc-antoine/Documents/Github/ETDataset/ETT-small",
 #             data_path='ETTh1.csv',
