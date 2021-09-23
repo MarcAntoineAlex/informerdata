@@ -31,7 +31,6 @@ class Architect():
             self.inverse_transform = inverse_transform
 
     def critere(self, pred, true, data_count, reduction='mean'):
-        print(pred.shape, (self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5).shape)
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return crit(pred * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5,
@@ -58,8 +57,8 @@ class Architect():
         pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.net)
-            print(trn_data[0].shape, pred.shape, trn_data[1].shape)
             unreduced_loss = self.critere(pred, true, data_count, reduction='none')
+            print(unreduced_loss)
             gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W(), retain_graph=True)
             with torch.no_grad():
                 for w, vw, g in zip(self.net.W(), self.v_net.W(), gradients):
