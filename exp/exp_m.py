@@ -177,7 +177,7 @@ class Exp_M_Informer(Exp_Basic):
                 iter_count += 1
                 A_optim.zero_grad()
                 W_optim.zero_grad()
-                loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim)
+                loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
 
                 A_optim.step()
                 # W_optim.zero_grad()
