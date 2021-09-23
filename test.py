@@ -16,9 +16,8 @@ class MyModel(nn.Module):
         return self.L(x)
 
 a = torch.ones(3, 4)
-b = torch.ones(2, 3, 4)*2
-crit = torch.nn.MSELoss()
-print(crit(a, b))
+b = torch.rand(3, 1)*2
+print(a, b, a*b)
 # data_set = Dataset_ETT_hour(
 #             root_path="/Users/marc-antoine/Documents/Github/ETDataset/ETT-small",
 #             data_path='ETTh1.csv',
