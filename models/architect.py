@@ -54,6 +54,7 @@ class Architect():
         pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.net)
+            print(trn_data[0].shape, pred.shape, trn_data[1].shape)
             unreduced_loss = self.critere(pred, true, data_count, reduction='none')
             gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W(), retain_graph=True)
             with torch.no_grad():
