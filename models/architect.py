@@ -34,7 +34,7 @@ class Architect():
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return crit(pred * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5,
-                        true * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5)
+                        true * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5).mean(dim=-1)
         else:
             return self.criterion(pred * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5,
                               true * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5)
