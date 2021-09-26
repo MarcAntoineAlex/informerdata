@@ -189,7 +189,7 @@ class Architect():
             for p, d in zip(self.net.W(), dw):
                 p += eps_w * d
 
-        hessian = [(p - n) / (2. * eps_w) for p, n in zip(dE_pos, dE_neg)]
+        hessian = (dE_pos - dE_neg) / (2. * eps_w)
         trn_data[1].requires_grad = False
         return hessian
 
