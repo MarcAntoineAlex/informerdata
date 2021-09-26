@@ -15,11 +15,9 @@ class MyModel(nn.Module):
     def forward(self, x):
         return self.L(x)
 
-a = torch.ones(3, 4)
-b = torch.rand(3, 4)*2
-criterion = nn.MSELoss(reduction='none')
-loss = criterion(a, b).mean(dim=-1)
-print(loss)
+a = torch.ones(3, 4, 5)
+print(a.mean(dim=(-1, -2)))
+
 # data_set = Dataset_ETT_hour(
 #             root_path="/Users/marc-antoine/Documents/Github/ETDataset/ETT-small",
 #             data_path='ETTh1.csv',
