@@ -108,7 +108,7 @@ class Architect():
             dw_list = []
             for i in range(self.args.batch_size):
                 dw_list.append(torch.autograd.grad(unreduced_loss[i], self.net.W(), retain_graph=i!=self.args.batch_size-1))
-        dist.all_reduce(hessian)
+        dist.broadcast(hessian, 1)
         da = torch.zeros(self.args.batch_size).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.v_net)
