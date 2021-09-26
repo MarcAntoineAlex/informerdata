@@ -112,7 +112,7 @@ class Architect():
         da = torch.zeros(self.args.batch_size).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.v_net)
-            pseudo_loss = pred * hessian
+            pseudo_loss = (pred * hessian).sum()
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
@@ -155,7 +155,7 @@ class Architect():
                 p += eps_w * d
         pred, true = self._process_one_batch(trn_data, self.net)
         loss = self.critere(pred, true, data_count)
-        dE_pos = torch.autograd.grad(loss, [trn_data[1]])[0]
+        dE_pos = torch.autograd.grad(loss, [trn_data[1]])[0][:, -self.args.pred_len:, :]
         # dE_poss = [torch.zeros(dE_pos.shape).to(self.device) for i in range(self.args.world_size)]
         # dist.all_gather(dE_poss, dE_pos)
         # if self.args.rank < self.args.world_size-1:
@@ -166,15 +166,13 @@ class Architect():
         #         dH2_wpos[i] *= 0
         # for i in zero_list:
         #     dH_wpos[i] *= 0
-
-
         # w- = w - eps*dw`
         with torch.no_grad():
             for p, d in zip(self.net.W(), dw):
                 p -= 2. * eps_w * d
         pred, true = self._process_one_batch(trn_data, self.net)
         loss = self.critere(pred, true, data_count)
-        dE_neg = torch.autograd.grad(loss, [trn_data[1][:, -self.args.pred_len, :]])[0]
+        dE_neg = torch.autograd.grad(loss, [trn_data[1]])[0][:, -self.args.pred_len:, :]
         # dD_wnegs = [torch.zeros(dD_wneg.shape).to(self.device) for i in range(args.world_size)]
         # dist.all_gather(dD_wnegs, dD_wneg)
         # if args.rank < args.world_size-1:
