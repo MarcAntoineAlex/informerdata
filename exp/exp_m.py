@@ -181,19 +181,15 @@ class Exp_M_Informer(Exp_Basic):
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data, self.model)
-                    unreduced_loss = self.critere(pred, true, data_count, reduction='none')
-                    gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W(), retain_graph=True)
-
+                    loss = self.critere(pred, true, data_count, criterion)
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
-                        pred, true = self._process_one_batch(next_data, self.v_net)
+                        pred, true = self._process_one_batch(next_data, self.model)
                     dist.broadcast(pred.contiguous(), r)
                     if self.args.rank == r + 1:
                         trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
-                        pred, true = self._process_one_batch(trn_data, self.net)
-                        unreduced_loss = self.critere(pred, true, data_count, reduction='none')
-                        gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W())
-
+                        pred, true = self._process_one_batch(trn_data, self.model)
+                        loss = criterion(pred, true)
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -204,13 +200,13 @@ class Exp_M_Informer(Exp_Basic):
                     iter_count = 0
                     time_now = time.time()
 
-                # if self.args.use_amp:
-                #     scaler.scale(loss).backward()
-                #     scaler.step(W_optim)
-                #     scaler.update()
-                # else:
-                #     loss.backward()
-                #     W_optim.step()
+                if self.args.use_amp:
+                    scaler.scale(loss).backward()
+                    scaler.step(W_optim)
+                    scaler.update()
+                else:
+                    loss.backward()
+                    W_optim.step()
                 data_count += self.args.batch_size
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))
@@ -332,3 +328,12 @@ class Exp_M_Informer(Exp_Basic):
         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
 
         return outputs, batch_y
+
+    def critere(self, pred, true, data_count, criterion, reduction='mean'):
+        weights = self.model.arch[data_count:data_count + pred.shape[0]]
+        weights = torch.softmax(weights, dim=0) ** 0.5
+        if reduction != 'mean':
+            crit = nn.MSELoss(reduction=reduction)
+            return crit(pred * weights, true * weights).mean(dim=(-1, -2))
+        else:
+            return criterion(pred * weights, true * weights)
