@@ -130,8 +130,7 @@ class Exp_M_Informer(Exp_Basic):
         self.model.eval()
         total_loss = []
         for i, val_d in enumerate(vali_loader):
-            pred, true = self._process_one_batch(
-                vali_data, val_d)
+            pred, true = self._process_one_batch(val_d)
             loss = criterion(pred.detach().cpu(), true.detach().cpu())
             total_loss.append(loss)
         total_loss = np.average(total_loss)
@@ -242,8 +241,7 @@ class Exp_M_Informer(Exp_Basic):
         trues = []
 
         for i, test_d in enumerate(test_loader):
-            pred, true = self._process_one_batch(
-                test_data, test_d)
+            pred, true = self._process_one_batch(test_d)
             preds.append(pred.detach().cpu().numpy())
             trues.append(true.detach().cpu().numpy())
 
@@ -281,8 +279,7 @@ class Exp_M_Informer(Exp_Basic):
         preds = []
 
         for i, pred_d in enumerate(pred_loader):
-            pred, true = self._process_one_batch(
-                pred_data, pred_d)
+            pred, true = self._process_one_batch(pred_d)
             preds.append(pred.detach().cpu().numpy())
 
         preds = np.array(preds)
