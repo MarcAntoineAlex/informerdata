@@ -175,22 +175,25 @@ class Exp_M_Informer(Exp_Basic):
                     trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
                 iter_count += 1
                 A_optim.zero_grad()
-                W_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
-                for w in self.model.W():
-                    if torch.isfinite(w.grad).float().min() < 1:
-                        print('DAMGER 003')
-                    if torch.isfinite(w).float().min() < 1:
-                        print('DAMGER 004')
-                if torch.isfinite(self.model.arch.grad).float().min() < 1:
-                    print('DAMGER 005')
-                if torch.isfinite(self.model.arch).float().min() < 1:
-                    print('DAMGER 006')
                 A_optim.step()
-                # W_optim.zero_grad()
-                # pred, true = self._process_one_batch(train_data, trn_data)
-                # loss = criterion(pred * self.model.arch[data_count:data_count+self.args.batch_size]**0.5,
-                #                  true * self.model.arch[data_count:data_count+self.args.batch_size]**0.5)
+                W_optim.zero_grad()
+                pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
+                if self.args.rank == 0:
+                    pred, true = self._process_one_batch(trn_data, self.model)
+                    unreduced_loss = self.critere(pred, true, data_count, reduction='none')
+                    gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W(), retain_graph=True)
+
+                for r in range(0, self.args.world_size - 1):
+                    if self.args.rank == r:
+                        pred, true = self._process_one_batch(next_data, self.v_net)
+                    dist.broadcast(pred.contiguous(), r)
+                    if self.args.rank == r + 1:
+                        trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
+                        pred, true = self._process_one_batch(trn_data, self.net)
+                        unreduced_loss = self.critere(pred, true, data_count, reduction='none')
+                        gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W())
+
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
