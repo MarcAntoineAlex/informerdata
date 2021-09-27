@@ -95,6 +95,8 @@ class Architect():
         args = args_in
         # do virtual step (calc w`)
         unreduced_loss = self.virtual_step(trn_data, next_data, xi, w_optim, data_count)
+        if torch.isfinite(unreduced_loss).float().min() < 1:
+            print('DAMGER 007')
         hessian = torch.zeros(args.batch_size, args.pred_len, trn_data[1].shape[-1]).to(self.device)
         if self.args.rank == 1:
             # calc unrolled loss
@@ -103,7 +105,12 @@ class Architect():
             # compute gradient
             v_W = list(self.v_net.W())
             dw = list(torch.autograd.grad(loss, v_W))
+            for d in dw:
+                if torch.isfinite(d).float().min() < 1:
+                    print('DAMGER 008')
             hessian = self.compute_hessian(dw, trn_data, data_count)
+            if torch.isfinite(hessian).float().min() < 1:
+                print('DAMGER 009')
         elif self.args.rank == 0:
             dw_list = []
             for i in range(self.args.batch_size):
@@ -113,7 +120,12 @@ class Architect():
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.v_net)
             pseudo_loss = (pred * hessian).sum()
+            if torch.isfinite(pseudo_loss).float().min() < 1:
+                print('DAMGER 010')
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
+            for d in dw0:
+                if torch.isfinite(d).float().min() < 1:
+                    print('DAMGER 011')
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
                     da[data_count+i] += (a*b).sum()

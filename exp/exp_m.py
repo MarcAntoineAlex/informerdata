@@ -178,13 +178,13 @@ class Exp_M_Informer(Exp_Basic):
                 W_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
                 for w in self.model.W():
-                    if torch.isfinite(w.grad).float().max() > 0:
+                    if torch.isfinite(w.grad).float().min() < 1:
                         print('DAMGER 003')
-                    if torch.isfinite(w).float().max() > 0:
+                    if torch.isfinite(w).float().min() < 1:
                         print('DAMGER 004')
-                if torch.isfinite(self.model.arch.grad).float().max() > 0:
+                if torch.isfinite(self.model.arch.grad).float().min() < 1:
                     print('DAMGER 005')
-                if torch.isfinite(self.model.arch).float().max() > 0:
+                if torch.isfinite(self.model.arch).float().min() < 1:
                     print('DAMGER 006')
                 A_optim.step()
                 # W_optim.zero_grad()
