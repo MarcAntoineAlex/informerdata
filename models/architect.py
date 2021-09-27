@@ -109,14 +109,14 @@ class Architect():
             for i in range(self.args.batch_size):
                 dw_list.append(torch.autograd.grad(unreduced_loss[i], self.net.W(), retain_graph=i!=self.args.batch_size-1))
         dist.broadcast(hessian, 1)
-        da = torch.zeros(self.args.batch_size).to(self.device)
+        da = torch.zeros_like(self.net.arch).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.v_net)
             pseudo_loss = (pred * hessian).sum()
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
-                    da[i] += (a*b).sum()
+                    da[data_count+i] += (a*b).sum()
         dist.broadcast(da, 0)
 
         # clipping hessian
@@ -131,8 +131,7 @@ class Architect():
 
         # update final gradient = dalpha - xi*hessian
         with torch.no_grad():
-            for a, da in zip(self.net.A(), da):
-                a.grad = da * xi * xi
+            self.net.arch.grad = da * xi * xi
         return unreduced_loss.mean()
 
 
