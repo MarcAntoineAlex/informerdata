@@ -31,13 +31,13 @@ class Architect():
             self.inverse_transform = inverse_transform
 
     def critere(self, pred, true, data_count, reduction='mean'):
+        weights = self.net.arch[data_count:data_count + pred.shape[0]]
+        weights = torch.softmax(weights, dim=0) ** 0.5
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
-            return crit(pred * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5,
-                        true * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5).mean(dim=(-1, -2))
+            return crit(pred * weights, true * weights).mean(dim=(-1, -2))
         else:
-            return self.criterion(pred * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5,
-                              true * self.net.arch[data_count:data_count + pred.shape[0]] ** 0.5)
+            return self.criterion(pred * weights, true * weights)
 
     def virtual_step(self, trn_data, next_data, xi, w_optim, data_count):
         """
