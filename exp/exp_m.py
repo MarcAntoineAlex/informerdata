@@ -55,7 +55,6 @@ class Exp_M_Informer(Exp_Basic):
                 self.args.distil,
                 self.args.mix,
                 self.device,
-                self.args
             ).float()
         else:
             raise NotImplementedError
