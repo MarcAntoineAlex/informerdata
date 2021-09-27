@@ -180,15 +180,15 @@ class Exp_M_Informer(Exp_Basic):
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
-                    pred, true = self._process_one_batch(trn_data, self.model)
+                    pred, true = self._process_one_batch(self.model)
                     loss = self.critere(pred, true, data_count, criterion)
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
-                        pred, true = self._process_one_batch(next_data, self.model)
+                        pred, true = self._process_one_batch(self.model)
                     dist.broadcast(pred.contiguous(), r)
                     if self.args.rank == r + 1:
                         trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
-                        pred, true = self._process_one_batch(trn_data, self.model)
+                        pred, true = self._process_one_batch(self.model)
                         loss = criterion(pred, true)
                 train_loss.append(loss.item())
 
@@ -297,7 +297,7 @@ class Exp_M_Informer(Exp_Basic):
 
         return
 
-    def _process_one_batch(self, dataset_object, data):
+    def _process_one_batch(self, data):
         batch_x = data[0].float().to(self.device)
         batch_y = data[1].float().to(self.device)
 
@@ -322,8 +322,6 @@ class Exp_M_Informer(Exp_Basic):
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
             else:
                 outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-        if self.args.inverse:
-            outputs = dataset_object.inverse_transform(outputs)
         f_dim = -1 if self.args.features == 'MS' else 0
         batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
 
