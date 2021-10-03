@@ -215,6 +215,7 @@ class Exp_M_Informer(Exp_Basic):
 
             logger.info("R{0} Epoch: {1}, Steps: {2} | Train Loss: {3:.7f} Vali Loss: {4:.7f} Test Loss: {5:.7f}".format(
                 self.args.rank, epoch + 1, train_steps, train_loss, vali_loss, test_loss))
+            logger.info("R{0} arch{1}".format(self.args.rank, self.model.arch))
             early_stopping(vali_loss, self.model, path)
 
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
