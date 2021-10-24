@@ -106,7 +106,7 @@ def worker(gpu, ngpus_per_node, args_in):
 
         exp = Exp(args)  # set experiments
         logger.info('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
-        exp.train(ii, logger)
+        exp.train(ii, setting, logger)
 
         logger.info('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, logger)

@@ -137,7 +137,7 @@ class Exp_M_Informer(Exp_Basic):
         self.model.train()
         return total_loss
 
-    def train(self, ii, logger):
+    def train(self, ii, setting, logger):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         next_data, next_loader = self._get_data(flag='train')
@@ -190,7 +190,8 @@ class Exp_M_Informer(Exp_Basic):
                         trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
                         pred, true = self._process_one_batch(trn_data)
                         loss2 = criterion(pred, true)
-                        loss = loss1 + loss2 * self.args.lambda_par
+                        # loss = loss1 + loss2 * self.args.lambda_par
+                        loss = loss1
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -229,6 +230,7 @@ class Exp_M_Informer(Exp_Basic):
                 break
 
             adjust_learning_rate(W_optim, epoch + 1, self.args)
+            self.test(setting, logger)
 
         best_model_path = path + '/' + '{}_checkpoint.pth'.format(self.args.rank)
         self.model.load_state_dict(torch.load(best_model_path))
@@ -250,10 +252,8 @@ class Exp_M_Informer(Exp_Basic):
 
         preds = np.array(preds)
         trues = np.array(trues)
-        logger.info('test shape: {} {}'.format(preds.shape, trues.shape))
         preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
         trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
-        logger.info('test shape: {} {}'.format(preds.shape, trues.shape))
 
         # result save
         folder_path = './results/' + setting + '/'
