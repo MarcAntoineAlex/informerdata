@@ -185,9 +185,12 @@ class Exp_M_Informer(Exp_Basic):
                         pred, true = self._process_one_batch(next_data)
                     dist.broadcast(pred.contiguous(), r)
                     if self.args.rank == r + 1:
+                        pred, true = self._process_one_batch(trn_data)
+                        loss1 = criterion(pred, true)
                         trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
                         pred, true = self._process_one_batch(trn_data)
-                        loss = criterion(pred, true)
+                        loss2 = criterion(pred, true)
+                        loss = loss1 + loss2
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
