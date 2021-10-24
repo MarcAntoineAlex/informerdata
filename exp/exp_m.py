@@ -190,7 +190,7 @@ class Exp_M_Informer(Exp_Basic):
                         trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
                         pred, true = self._process_one_batch(trn_data)
                         loss2 = criterion(pred, true)
-                        loss = loss1 + loss2
+                        loss = loss1 + loss2 * self.args.lambda_par
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -224,7 +224,7 @@ class Exp_M_Informer(Exp_Basic):
             flag = flag.to(self.device)
             flags = [torch.tensor([1]).to(self.device), torch.tensor([1]).to(self.device)]
             dist.all_gather(flags, flag)
-            if flags[0].item() == 1 and flags[1].item() == 1:
+            if flags[1].item() == 1:
                 logger.info("Early stopping")
                 break
 
