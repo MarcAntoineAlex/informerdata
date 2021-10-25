@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-
+##### CCD
 # data = pd.read_csv('/Users/marc-antoine/Downloads/travail/1.txt', sep='; ')
 # print(data.columns)
 #
@@ -45,11 +45,12 @@ import numpy as np
 # plt.savefig('/Users/marc-antoine/Documents/物理实验/ccd/0.jpg')
 # plt.show()
 
-data = pd.read_csv('/Users/marc-antoine/Downloads/travail/2_1.csv', sep=';')
-temps = data['Temps'].to_numpy()
-volt = data['EA1'].rolling(10).mean().to_numpy()
-
-# from scipy.interpolate import make_interp_spline
+#### FOURRIER
+data = pd.read_csv('/Users/marc-antoine/Documents/gch/erhao.csv', sep=';')
+temps = data['Temps'].to_numpy()[20:]
+volt = data['EA1'].rolling(10).mean().to_numpy()[20:]
+volt -= volt.mean()
+from scipy.interpolate import make_interp_spline
 # xnew = np.linspace(temps.min(), temps.max(), 10000) #300 represents number of points to make between T.min and T.max
 # power_smooth = make_interp_spline(temps, volt)(xnew)
 
@@ -58,10 +59,20 @@ volt = data['EA1'].rolling(10).mean().to_numpy()
 # addx = xnew[:1500] + 80
 # xnew = np.concatenate((xnew, addx))
 # power_smooth = np.concatenate((power_smooth, addy))
-xnew = temps * 0.535
-# plt.plot(xnew, volt)
+# plt.plot(temps, volt)
 # plt.show()
+xnew = temps * 0.558 * 2
+xnew -= xnew[np.argmax(volt)]
+# xnew = - np.flipud(xnew[:np.argmax(volt)])
+# xnew -= xnew[0]
+# volt = volt[:np.argmax(volt)]
+plt.plot(xnew, volt, linewidth=0.5)
 
+plt.xlabel('{}/{}m'.format(chr(916), chr(956)))
+plt.ylabel('U/V')
+plt.grid()
+plt.savefig('/Users/marc-antoine/Documents/gch/I(delta).jpg')
+plt.show()
 
 def find_center(y):
     result = np.ones(20000) * 14000
@@ -71,18 +82,19 @@ def find_center(y):
         erro = np.abs(y1-y2).sum()
         if y[40000+i]>0 or True:
             result[i] = erro
-    plt.plot(result)
-    plt.show()
+    # plt.plot(result)
+    # plt.show()
     positive = y[40000:60000] > 0
     return np.argmin(result)
 
 
-start = find_center(volt) + 40000
-print(start)
-# plt.plot(volt[start-1000:start+1000])
-# plt.show()
-# start = start-30 + np.argmax(volt[start-30:start+30])
-print(start)
+# start = find_center(volt) + 40000
+start = np.argmax(volt)
+# print(start)
+# # plt.plot(volt[start-1000:start+1000])
+# # plt.show()
+# # start = start-30 + np.argmax(volt[start-30:start+30])
+# print(start)
 xnew = xnew[start:]
 xnew -= xnew[0]
 volt = volt[start:]
@@ -99,19 +111,49 @@ volt = volt[start:]
 after_idct = idct(volt, norm='ortho')
 after_x = xnew / xnew[-1] * xnew.shape[0] / xnew[-1] / 2
 print(xnew.shape)
-x = np.reciprocal(after_x[40:300])*2000
-y = after_idct[40:300]
+x = np.reciprocal(after_x[80:500])*1000
+y = after_idct[80:500]
 m, M = np.argmin(y), np.argmax(y)
-print(x[m], x[M])
-y[m] *= -1
-y[m+1] *= -1
+print(x[M])
+y[m] += 3
+y[m-1] += 3
+y = y * 2 * 2**0.5 * xnew[-1] / xnew.shape[0]**0.5
 plt.plot(x, y)
+plt.grid()
+plt.xlim(200, 1000)
+plt.xlabel('{}/nm'.format(chr(955)))
+plt.ylabel('U/V')
+plt.savefig('/Users/marc-antoine/Documents/gch/I(lambda).jpg')
 plt.show()
+
+x = np.reciprocal(x) * 1000
+plt.plot(x, y)
+plt.grid()
+plt.xlim(1, 5)
+plt.xlabel('{}*{}m'.format(chr(963), chr(956)))
+plt.ylabel('U/V')
+plt.savefig('/Users/marc-antoine/Documents/gch/I(sigma).jpg')
+plt.show()
+
+x = np.flipud(x[y>0])
+y = np.flipud(y[y>0])
+y1 = np.zeros(y.shape)
+for i in range(y.shape[0]-4):
+    y1[i+2] = y[i] + y[i+1] + y[i+2] + y[i+3] + y[i+4] / 5
+plt.plot(x, y1)
+plt.grid()
+plt.xlim(200, 1000)
+plt.xlabel('{}/nm'.format(chr(955)))
+plt.ylabel('U/V')
+plt.savefig('/Users/marc-antoine/Documents/gch/I(lambda)positive.jpg')
+plt.show()
+
+
 # plt.hist(y, bins=100)
 # plt.show()
 
-plt.plot(x[m-5:m+5], y[m-5:m+5], '*--')
-plt.show()
+# plt.plot(x[m-5:m+5], y[m-5:m+5], '*--')
+# plt.show()
 # x_final, y_final = [], []
 # for i in range(len(x)-2):
 #     if y[i] <= y[i+1] and y[i+1] >= y[i+2] and y[i+1] > 0:
@@ -128,10 +170,10 @@ plt.show()
 # plt.show()
 
 
-#### speed
+### speed
 # data = pd.read_csv('/Users/marc-antoine/Downloads/Nouveau dossier/speed.csv', sep=';')
 # temps = data['Temps'].to_numpy()
-# temps = temps * 535/555
+# temps = temps * 535/558
 # volt = data['EA1'].to_numpy()
 # plt.figure(figsize=(50, 20))
 # plt.tick_params(labelsize=29)

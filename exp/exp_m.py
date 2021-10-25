@@ -182,11 +182,11 @@ class Exp_M_Informer(Exp_Basic):
                     next_data = next(next_iter)
                 for i in range(len(trn_data)):
                     trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
-
+                print('cp1')
                 iter_count += 1
-                A_optim.zero_grad()
-                loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
-                A_optim.step()
+                # A_optim.zero_grad()
+                # loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
+                # A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
@@ -204,6 +204,7 @@ class Exp_M_Informer(Exp_Basic):
                         # loss2 = criterion(pred, true)
                         # loss = loss1 + loss2 * self.args.lambda_par
                         loss = loss1
+                print('cp2')
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
