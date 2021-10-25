@@ -168,9 +168,21 @@ class Exp_M_Informer(Exp_Basic):
 
             self.model.train()
             epoch_time = time.time()
-            for i, (trn_data, val_data, next_data) in enumerate(zip(train_loader, vali_loader, next_loader)):
+            for i, trn_data in enumerate(train_loader):
+                try:
+                    val_data = next(val_iter)
+                except:
+                    val_iter = iter(vali_loader)
+                    val_data = next(val_iter)
+
+                try:
+                    next_data = next(next_iter)
+                except:
+                    next_iter = iter(next_loader)
+                    next_data = next(next_iter)
                 for i in range(len(trn_data)):
                     trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
+
                 iter_count += 1
                 A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
@@ -181,15 +193,15 @@ class Exp_M_Informer(Exp_Basic):
                     pred, true = self._process_one_batch(trn_data)
                     loss = self.critere(pred, true, data_count, criterion)
                 for r in range(0, self.args.world_size - 1):
-                    if self.args.rank == r:
-                        pred, true = self._process_one_batch(next_data)
-                    dist.broadcast(pred.contiguous(), r)
+                    # if self.args.rank == r:
+                    #     pred, true = self._process_one_batch(next_data)
+                    # dist.broadcast(pred.contiguous(), r)
                     if self.args.rank == r + 1:
                         pred, true = self._process_one_batch(trn_data)
                         loss1 = criterion(pred, true)
-                        trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
-                        pred, true = self._process_one_batch(trn_data)
-                        loss2 = criterion(pred, true)
+                        # trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
+                        # pred, true = self._process_one_batch(trn_data)
+                        # loss2 = criterion(pred, true)
                         # loss = loss1 + loss2 * self.args.lambda_par
                         loss = loss1
                 train_loss.append(loss.item())
