@@ -183,21 +183,21 @@ class Exp_M_Informer(Exp_Basic):
                 for i in range(len(trn_data)):
                     trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
                 iter_count += 1
-                A_optim.zero_grad()
-                loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
-                A_optim.step()
+                # A_optim.zero_grad()
+                # loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
+                # A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
                     loss = self.critere(pred, true, data_count, criterion)
                 for r in range(0, self.args.world_size - 1):
-                    # if self.args.rank == r:
-                    #     pred, true = self._process_one_batch(next_data)
-                    # dist.broadcast(pred.contiguous(), r)
+                    if self.args.rank == r:
+                        pred, true = self._process_one_batch(next_data)
+                    dist.broadcast(pred.contiguous(), r)
                     if self.args.rank == r + 1:
-                        pred, true = self._process_one_batch(trn_data)
-                        loss1 = criterion(pred, true)
+                        own_pred, own_true = self._process_one_batch(trn_data)
+                        loss1 = criterion(own_pred, own_true)
                         trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
                         pred, true = self._process_one_batch(trn_data)
                         loss2 = criterion(pred, true)
