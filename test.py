@@ -4,6 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import os
+import sys
 
 from numpy import linspace
 
@@ -16,35 +17,41 @@ import numpy as np
 
 
 ##### CCD
-# data = pd.read_csv('/Users/marc-antoine/Downloads/travail/1.txt', sep='; ')
-# print(data.columns)
-#
-# x = data['location'].to_numpy()
-# y = data['intensity'].to_numpy()
-# for i in range(len(x)):
-#     index = x[i].find(',')
-#     x[i] = x[i][:index] + '.' + x[i][index+1:]
-# for i in range(len(y)):
-#     index = y[i].find(',')
-#     y[i] = y[i][:index] + '.' + y[i][index+1:]
-# x = x.astype(np.float) /523 * 600
-# y = y.astype(np.float)
-#
-# print(x[340 + np.argmax(y[340:620])])
-# print(x[680 + np.argmax(y[680:1020])])
-# print(x[1020+ np.argmax(y[1020:1500])])
-# print(x[1500 + np.argmax(y[1500:2000])])
-# print(x[np.argmax(y)])
-# plt.plot(x[:], y[:])
-# plt.xlabel('location/mm')
-# plt.ylabel('Radiance')
-# plt.grid()
-# plt.xlim(0)
-# plt.ylim(0)
-#
-# plt.savefig('/Users/marc-antoine/Documents/物理实验/ccd/0.jpg')
-# plt.show()
+data = pd.read_csv('/Users/marc-antoine/Documents/gch/lgp.txt', sep='; ')
+print(data.columns)
 
+x = data['location'].to_numpy()
+y = data['intensity'].to_numpy()
+for i in range(len(x)):
+    index = x[i].find(',')
+    x[i] = x[i][:index] + '.' + x[i][index+1:]
+for i in range(len(y)):
+    index = y[i].find(',')
+    y[i] = y[i][:index] + '.' + y[i][index+1:]
+x = x.astype(np.float)
+y = y.astype(np.float)-150
+
+print(x[340 + np.argmax(y[340:620])])
+print(x[0 + np.argmax(y[0:380])])
+print(x[1020+ np.argmax(y[1020:1500])])
+print(x[1500 + np.argmax(y[1500:2000])])
+print(x[np.argmax(y)])
+
+for i in range(x.shape[0]):
+    if y.max()/2-10 <= y[i] <= y.max()/2+10:
+        print(x[i])
+
+plt.plot(x[:], y[:])
+plt.xlabel('location/mm')
+plt.ylabel('Radiance')
+plt.ylim(0, 4000)
+plt.grid()
+plt.xlim(0)
+plt.ylim(0)
+
+plt.savefig('/Users/marc-antoine/Documents/gch/lgp.jpg')
+plt.show()
+sys.exit()
 #### FOURRIER
 data = pd.read_csv('/Users/marc-antoine/Documents/gch/erhao.csv', sep=';')
 temps = data['Temps'].to_numpy()[20:]
