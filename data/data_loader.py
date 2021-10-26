@@ -12,13 +12,14 @@ from utils.timefeatures import time_features
 import warnings
 warnings.filterwarnings('ignore')
 
+
 class Dataset_ETT_hour(Dataset):
     def __init__(self, root_path, flag='train', size=None, 
                  features='S', data_path='ETTh1.csv', 
                  target='OT', scale=True, inverse=False, timeenc=0, freq='h', cols=None):
         # size [seq_len, label_len, pred_len]
         # info
-        if size == None:
+        if size is None:
             self.seq_len = 24*4*4
             self.label_len = 24*4
             self.pred_len = 24*4
