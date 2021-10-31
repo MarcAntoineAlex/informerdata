@@ -89,7 +89,7 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--mix', action='store_false', help='use mix attention in generative decoder', default=True)
         parser.add_argument('--cols', type=str, nargs='+', help='file list')
         parser.add_argument('--num_workers', type=int, default=0, help='data loader num workers')
-        parser.add_argument('--itr', type=int, default=8, help='experiments times')
+        parser.add_argument('--itr', type=int, default=12, help='experiments times')
         parser.add_argument('--train_epochs', type=int, default=6, help='train epochs')
         parser.add_argument('--batch_size', type=int, default=32, help='batch size of train input data')
         parser.add_argument('--patience', type=int, default=3, help='early stopping patience')

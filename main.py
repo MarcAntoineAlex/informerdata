@@ -96,6 +96,7 @@ def worker(gpu, ngpus_per_node, args_in):
     args.freq = args.freq[-1:]
 
     Exp = Exp_M_Informer
+    mses, maes = [], []
 
     for ii in range(args.itr):
         # setting record of experiments
@@ -109,13 +110,18 @@ def worker(gpu, ngpus_per_node, args_in):
         exp.train(ii, setting, logger)
 
         logger.info('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-        exp.test(setting, logger)
+        mse, mae = exp.test(setting, logger)
+        mses.append(mse.cpu().item())
+        maes.append(mae.cpu().item())
+
 
         if args.do_predict:
             logger.info('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.predict(setting, True)
 
         torch.cuda.empty_cache()
+    logger.info("FINAL RESULT {} {}".format(torch.tensor(mses).mean(), torch.tensor(maes).mean()))
+
 
 if __name__ == '__main__':
     main()

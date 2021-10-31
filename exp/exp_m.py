@@ -273,11 +273,11 @@ class Exp_M_Informer(Exp_Basic):
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         logger.info('R{} mse:{}, mae:{}'.format(self.args.rank, mse, mae))
 
-        np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path + 'pred.npy', preds)
-        np.save(folder_path + 'true.npy', trues)
+        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        # np.save(folder_path + 'pred.npy', preds)
+        # np.save(folder_path + 'true.npy', trues)
 
-        return
+        return mse, mae
 
     def predict(self, setting, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
