@@ -183,9 +183,9 @@ class Exp_M_Informer(Exp_Basic):
                 for i in range(len(trn_data)):
                     trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
                 iter_count += 1
-                A_optim.zero_grad()
-                loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
-                A_optim.step()
+                # A_optim.zero_grad()
+                # loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
+                # A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
@@ -228,7 +228,7 @@ class Exp_M_Informer(Exp_Basic):
 
             logger.info("R{0} Epoch: {1}, Steps: {2} | Train Loss: {3:.7f} Vali Loss: {4:.7f} Test Loss: {5:.7f}".format(
                 self.args.rank, epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            logger.info("R{0} arch{1}".format(self.args.rank, self.model.arch))
+            logger.info("R{0} arch{1}".format(self.args.rank, self.model.arch.std()))
             early_stopping(vali_loss, self.model, path)
 
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
