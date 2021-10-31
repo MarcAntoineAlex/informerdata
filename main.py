@@ -111,8 +111,8 @@ def worker(gpu, ngpus_per_node, args_in):
 
         logger.info('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         mse, mae = exp.test(setting, logger)
-        mses.append(mse.cpu().item())
-        maes.append(mae.cpu().item())
+        mses.append(mse.item())
+        maes.append(mae.item())
 
 
         if args.do_predict:
