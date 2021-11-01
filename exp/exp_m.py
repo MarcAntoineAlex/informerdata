@@ -191,6 +191,8 @@ class Exp_M_Informer(Exp_Basic):
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
                     loss = self.critere(pred, true, data_count, criterion)
+                    loss.backward()
+                    W_optim.step()
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
                         pred, true = self._process_one_batch(next_data)
@@ -198,10 +200,12 @@ class Exp_M_Informer(Exp_Basic):
                     if self.args.rank == r + 1:
                         own_pred, own_true = self._process_one_batch(trn_data)
                         loss1 = criterion(own_pred, own_true)
-                        trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
-                        pred, true = self._process_one_batch(trn_data)
-                        loss2 = criterion(pred, true)
+                        # trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
+                        # pred, true = self._process_one_batch(trn_data)
+                        loss2 = criterion(own_pred, pred)
                         loss = loss1 + loss2 * self.args.lambda_par
+                        loss.backward()
+                        W_optim.step()
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
@@ -212,13 +216,7 @@ class Exp_M_Informer(Exp_Basic):
                     iter_count = 0
                     time_now = time.time()
 
-                if self.args.use_amp:
-                    scaler.scale(loss).backward()
-                    scaler.step(W_optim)
-                    scaler.update()
-                else:
-                    loss.backward()
-                    W_optim.step()
+
                 data_count += self.args.batch_size
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))
