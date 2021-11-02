@@ -120,7 +120,7 @@ def worker(gpu, ngpus_per_node, args_in):
             exp.predict(setting, True)
 
         torch.cuda.empty_cache()
-    logger.info("FINAL RESULT {} {}".format(torch.tensor(mses).mean(), torch.tensor(maes).mean()))
+    logger.info("R{} FINAL RESULT {} {}".format(args.rank, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
 
 
 if __name__ == '__main__':
