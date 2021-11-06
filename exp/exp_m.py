@@ -183,6 +183,14 @@ class Exp_M_Informer(Exp_Basic):
                 for i in range(len(trn_data)):
                     trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
                 iter_count += 1
+
+                true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
+                if self.args.rank == 0:
+                    dist.all_gather(true_list, next_data[1])
+                elif self.args.rank == 1:
+                    dist.all_gather(true_list, trn_data[1])
+                assert torch.abs(true_list[0] - true_list[1]).max().item() == 0
+
                 # A_optim.zero_grad()
                 # loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
                 # A_optim.step()
@@ -198,8 +206,8 @@ class Exp_M_Informer(Exp_Basic):
                         pred, true = self._process_one_batch(next_data)
                     dist.broadcast(pred.contiguous(), r)
                     if self.args.rank == r + 1:
-                        own_pred, own_true = self._process_one_batch(trn_data)
-                        loss1 = criterion(own_pred, own_true)
+                        own_pred, true = self._process_one_batch(trn_data)
+                        loss1 = criterion(own_pred, true)
                         # trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
                         # pred, true = self._process_one_batch(trn_data)
                         loss2 = criterion(own_pred, pred)
