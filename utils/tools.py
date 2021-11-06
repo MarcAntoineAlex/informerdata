@@ -41,6 +41,8 @@ class EarlyStopping:
         self.rank = rank
 
     def __call__(self, val_loss, model, path):
+        if self.early_stop:
+            return
         score = -val_loss
         if self.best_score is None:
             self.best_score = score
