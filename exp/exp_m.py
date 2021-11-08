@@ -142,7 +142,6 @@ class Exp_M_Informer(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         next_data, next_loader = self._get_data(flag='train')
         test_data, test_loader = self._get_data(flag='test')
-        print(len(train_loader), len(train_data))
 
         path = os.path.join(self.args.path, str(ii))
         try:
@@ -168,14 +167,11 @@ class Exp_M_Informer(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, trn_data in enumerate(train_loader):
-                print('s')
-                print(trn_data[1])
                 true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
                 if self.args.rank == 0:
                     dist.all_gather(true_list, trn_data[1].to(self.device))
                 elif self.args.rank == 1:
                     dist.all_gather(true_list, trn_data[1].to(self.device))
-                print(true_list[0], true_list[1])
                 assert torch.abs(true_list[0] - true_list[1]).max().item() == 0
 
                 try:
