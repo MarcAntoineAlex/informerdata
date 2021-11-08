@@ -170,9 +170,9 @@ class Exp_M_Informer(Exp_Basic):
                 print('s')
                 true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
                 if self.args.rank == 0:
-                    dist.all_gather(true_list, trn_data[1])
+                    dist.all_gather(true_list, trn_data[1].cuda())
                 elif self.args.rank == 1:
-                    dist.all_gather(true_list, trn_data[1])
+                    dist.all_gather(true_list, trn_data[1].cuda())
                 print(torch.abs(true_list[0] - true_list[1]))
                 assert torch.abs(true_list[0] - true_list[1]).max().item() == 0
 
