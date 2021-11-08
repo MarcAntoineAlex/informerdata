@@ -5,8 +5,7 @@ from models.architect import Architect
 
 from utils.tools import EarlyStopping, adjust_learning_rate, AverageMeter
 from utils.metrics import metric
-from main import setup_seed
-
+import random
 import numpy as np
 
 import torch
@@ -355,3 +354,11 @@ class Exp_M_Informer(Exp_Basic):
             return crit(pred * weights, true * weights).mean(dim=(-1, -2))
         else:
             return criterion(pred * weights, true * weights)
+
+
+def setup_seed(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.deterministic = True
