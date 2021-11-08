@@ -172,6 +172,7 @@ class Exp_M_Informer(Exp_Basic):
                     dist.all_gather(true_list, trn_data[1].to(self.device))
                 elif self.args.rank == 1:
                     dist.all_gather(true_list, trn_data[1].to(self.device))
+                print(torch.abs(true_list[0] - true_list[1]))
                 assert torch.abs(true_list[0] - true_list[1]).max().item() == 0
 
                 try:
