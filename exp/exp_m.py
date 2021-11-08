@@ -5,6 +5,7 @@ from models.architect import Architect
 
 from utils.tools import EarlyStopping, adjust_learning_rate, AverageMeter
 from utils.metrics import metric
+from main import setup_seed
 
 import numpy as np
 
@@ -167,6 +168,7 @@ class Exp_M_Informer(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, trn_data in enumerate(train_loader):
+                setup_seed(i)
                 if i%100 == 0:
                     logger.info("Train data {} {}".format(i, trn_data[1]))
                 true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
@@ -243,7 +245,7 @@ class Exp_M_Informer(Exp_Basic):
             flag = flag.to(self.device)
             flags = [torch.tensor([1]).to(self.device), torch.tensor([1]).to(self.device)]
             dist.all_gather(flags, flag)
-            if flags[1].item() == 1:
+            if flags[1].item() == 1 and flags[0].item() == 1:
                 logger.info("Early stopping")
                 break
 
