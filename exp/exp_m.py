@@ -142,6 +142,7 @@ class Exp_M_Informer(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         next_data, next_loader = self._get_data(flag='train')
         test_data, test_loader = self._get_data(flag='test')
+        print(len(train_loader), len(train_data))
 
         path = os.path.join(self.args.path, str(ii))
         try:
