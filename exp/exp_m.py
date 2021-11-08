@@ -168,13 +168,12 @@ class Exp_M_Informer(Exp_Basic):
             epoch_time = time.time()
             for i, trn_data in enumerate(train_loader):
                 if i%100 == 0:
-                    print(trn_data)
+                    logger.info("Train data {}".format(trn_data[1]))
                 true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
                 if self.args.rank == 0:
                     dist.all_gather(true_list, trn_data[1].to(self.device))
                 elif self.args.rank == 1:
                     dist.all_gather(true_list, trn_data[1].to(self.device))
-                print(torch.abs(true_list[0] - true_list[1]))
                 if torch.abs(true_list[0] - true_list[1]).max().item() != 0:
                     logger.info("DANGER 176")
 
