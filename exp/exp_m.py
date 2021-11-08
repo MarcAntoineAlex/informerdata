@@ -142,8 +142,6 @@ class Exp_M_Informer(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         next_data, next_loader = self._get_data(flag='train')
         test_data, test_loader = self._get_data(flag='test')
-        if self.args.rank == 1:
-            train_data, train_loader = self._get_data(flag='train')
 
         path = os.path.join(self.args.path, str(ii))
         try:
@@ -186,13 +184,13 @@ class Exp_M_Informer(Exp_Basic):
 
                 true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
                 if self.args.rank == 0:
-                    dist.all_gather(true_list, next_data[1])
+                    dist.all_gather(true_list, trn_data[1])
                 elif self.args.rank == 1:
                     dist.all_gather(true_list, trn_data[1])
                 assert torch.abs(true_list[0] - true_list[1]).max().item() == 0
 
                 # A_optim.zero_grad()
-                # loss = self.arch.unrolled_backward(self.args, trn_data, val_data, next_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
+                # loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
                 # A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
@@ -203,7 +201,7 @@ class Exp_M_Informer(Exp_Basic):
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
-                        pred, true = self._process_one_batch(next_data)
+                        pred, true = self._process_one_batch(trn_data)
                     dist.broadcast(pred.contiguous(), r)
                     if self.args.rank == r + 1:
                         own_pred, true = self._process_one_batch(trn_data)
