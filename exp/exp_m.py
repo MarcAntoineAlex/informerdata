@@ -160,6 +160,10 @@ class Exp_M_Informer(Exp_Basic):
             scaler = torch.cuda.amp.GradScaler()
 
         for epoch in range(self.args.train_epochs):
+            train_data, train_loader = self._get_data(flag='train')
+            vali_data, vali_loader = self._get_data(flag='val')
+            next_data, next_loader = self._get_data(flag='train')
+            test_data, test_loader = self._get_data(flag='test')
             iter_count = 0
             data_count = 0
             train_loss = []
