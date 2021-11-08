@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import os
 import sys
 a = torch.randn(3, 4)
-print(a.std())
+print(len(a))
 # from numpy import linspace
 #
 # from data.data_loader import Dataset_ETT_hour
