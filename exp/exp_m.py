@@ -3,7 +3,7 @@ from exp.exp_basic import Exp_Basic
 from models.model import Informer, InformerStack
 from models.architect import Architect
 
-from utils.tools import EarlyStopping, adjust_learning_rate, AverageMeter
+from utils.tools import EarlyStopping, adjust_learning_rate, AverageMeter, MyDefiniteSampler
 from utils.metrics import metric
 import random
 import numpy as np
@@ -142,6 +142,10 @@ class Exp_M_Informer(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         next_data, next_loader = self._get_data(flag='train')
         test_data, test_loader = self._get_data(flag='test')
+        indices = torch.tensor(random.shuffle(list(range(len(train_data))))).to(self.device)
+        dist.broadcast(indices, 0)
+        sampler = MyDefiniteSampler(indices.tolist())
+        train_loader.sampler = sampler
 
         path = os.path.join(self.args.path, str(ii))
         try:
@@ -167,9 +171,6 @@ class Exp_M_Informer(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, trn_data in enumerate(train_loader):
-                setup_seed(i)
-                if i%100 == 0:
-                    logger.info("Train data {} {}".format(i, trn_data[1]))
                 true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
                 if self.args.rank == 0:
                     dist.all_gather(true_list, trn_data[1].to(self.device))
@@ -356,9 +357,4 @@ class Exp_M_Informer(Exp_Basic):
             return criterion(pred * weights, true * weights)
 
 
-def setup_seed(seed):
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    np.random.seed(seed)
-    random.seed(seed)
-    torch.backends.cudnn.deterministic = True
+
