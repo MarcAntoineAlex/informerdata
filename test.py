@@ -5,8 +5,10 @@ import torch.nn as nn
 import torch.nn.functional as F
 import os
 import sys
-a = torch.randn(3, 4)
-print(len(a))
+import random
+a = list(range(20))
+random.shuffle(a)
+print(a)
 # from numpy import linspace
 #
 # from data.data_loader import Dataset_ETT_hour

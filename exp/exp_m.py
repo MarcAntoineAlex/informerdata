@@ -142,7 +142,9 @@ class Exp_M_Informer(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         next_data, next_loader = self._get_data(flag='train')
         test_data, test_loader = self._get_data(flag='test')
-        indices = torch.tensor(random.shuffle(list(range(len(train_data))))).to(self.device)
+        indices = list(range(len(train_data)))
+        random.shuffle(indices)
+        indices = torch.tensor(indices).to(self.device)
         dist.broadcast(indices, 0)
         sampler = MyDefiniteSampler(indices.tolist())
         train_loader.sampler = sampler
