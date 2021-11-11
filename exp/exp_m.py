@@ -63,7 +63,7 @@ class Exp_M_Informer(Exp_Basic):
         self.arch = Architect(model, self.device, self.args, self._select_criterion())
         return model
 
-    def _get_data(self, flag):
+    def _get_data(self, flag, samp=False):
         args = self.args
 
         data_dict = {
@@ -107,12 +107,21 @@ class Exp_M_Informer(Exp_Basic):
             freq=freq,
             cols=args.cols
         )
+        sampler = None
+        if samp:
+            indices = list(range(len(data_set)))
+            random.shuffle(indices)
+            indices = torch.tensor(indices).to(self.device)
+            dist.broadcast(indices, 0)
+            sampler = MyDefiniteSampler(indices.tolist())
+
         data_loader = DataLoader(
             data_set,
             batch_size=batch_size,
             shuffle=shuffle_flag,
             num_workers=args.num_workers,
-            drop_last=drop_last)
+            drop_last=drop_last,
+            sampler=sampler)
 
         return data_set, data_loader
 
@@ -142,12 +151,6 @@ class Exp_M_Informer(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         next_data, next_loader = self._get_data(flag='train')
         test_data, test_loader = self._get_data(flag='test')
-        indices = list(range(len(train_data)))
-        random.shuffle(indices)
-        indices = torch.tensor(indices).to(self.device)
-        dist.broadcast(indices, 0)
-        sampler = MyDefiniteSampler(indices.tolist())
-        train_loader.sampler = sampler
 
         path = os.path.join(self.args.path, str(ii))
         try:
