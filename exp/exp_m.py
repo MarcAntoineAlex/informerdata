@@ -147,9 +147,9 @@ class Exp_M_Informer(Exp_Basic):
         return total_loss
 
     def train(self, ii, setting, logger):
-        train_data, train_loader = self._get_data(flag='train')
+        train_data, train_loader = self._get_data(flag='train', samp=True)
         vali_data, vali_loader = self._get_data(flag='val')
-        next_data, next_loader = self._get_data(flag='train')
+        next_data, next_loader = self._get_data(flag='train', samp=True)
         test_data, test_loader = self._get_data(flag='test')
 
         path = os.path.join(self.args.path, str(ii))
