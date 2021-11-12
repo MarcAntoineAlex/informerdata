@@ -21,7 +21,7 @@ class MyDefiniteSampler(Sampler):
         self.indice = indice
 
     def __iter__(self):
-        return self.indice
+        return iter(self.indice)
 
     def __len__(self):
         return len(self.indice)
