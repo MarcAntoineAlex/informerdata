@@ -114,6 +114,7 @@ class Exp_M_Informer(Exp_Basic):
             indices = torch.tensor(indices).to(self.device)
             dist.broadcast(indices, 0)
             sampler = MyDefiniteSampler(indices.tolist())
+            shuffle_flag = False
 
         data_loader = DataLoader(
             data_set,
