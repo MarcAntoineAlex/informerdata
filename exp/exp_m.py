@@ -200,10 +200,9 @@ class Exp_M_Informer(Exp_Basic):
                     trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
                 iter_count += 1
 
-
-                # A_optim.zero_grad()
-                # loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
-                # A_optim.step()
+                A_optim.zero_grad()
+                loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
+                A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
@@ -218,8 +217,6 @@ class Exp_M_Informer(Exp_Basic):
                     if self.args.rank == r + 1:
                         own_pred, true = self._process_one_batch(trn_data)
                         loss1 = criterion(own_pred, true)
-                        # trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
-                        # pred, true = self._process_one_batch(trn_data)
                         loss2 = criterion(own_pred, pred)
                         loss = loss1 + loss2 * self.args.lambda_par
                         loss.backward()
