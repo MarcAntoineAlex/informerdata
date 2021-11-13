@@ -127,7 +127,7 @@ class Exp_M_Informer(Exp_Basic):
         return data_set, data_loader
 
     def _select_optimizer(self):
-        W_optim = optim.Adam(self.model.W(), lr=self.args.learning_rate)
+        W_optim = optim.Adam(self.model.W(), 0.00005, weight_decay=1e-2)
         A_optim = optim.Adam(self.model.A(), self.args.A_lr, betas=(0.5, 0.999),
                              weight_decay=self.args.A_weight_decay)
         return W_optim, A_optim
@@ -252,7 +252,7 @@ class Exp_M_Informer(Exp_Basic):
                 logger.info("Early stopping")
                 break
 
-            adjust_learning_rate(W_optim, epoch + 1, self.args)
+            # adjust_learning_rate(W_optim, epoch + 1, self.args)
             self.test(setting, logger)
 
         best_model_path = path + '/' + '{}_checkpoint.pth'.format(self.args.rank)
