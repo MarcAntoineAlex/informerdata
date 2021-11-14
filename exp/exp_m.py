@@ -345,7 +345,6 @@ class Exp_M_Informer(Exp_Basic):
 
     def critere(self, pred, true, data_count, criterion, reduction='mean'):
         weights = self.model.arch[data_count:data_count + pred.shape[0]]
-        s = nn.Softmax(x)
         weights = (torch.softmax(weights, dim=0) * pred.shape[0]) ** 0.5
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
