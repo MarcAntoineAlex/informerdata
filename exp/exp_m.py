@@ -199,8 +199,8 @@ class Exp_M_Informer(Exp_Basic):
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
-                    # loss = self.critere(pred, true, data_count, criterion)
-                    loss = criterion(pred, true)  # todo: check
+                    loss = self.critere(pred, true, data_count, criterion)
+                    # loss = criterion(pred, true)  # todo: check
                     loss.backward()
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
@@ -345,7 +345,8 @@ class Exp_M_Informer(Exp_Basic):
 
     def critere(self, pred, true, data_count, criterion, reduction='mean'):
         weights = self.model.arch[data_count:data_count + pred.shape[0]]
-        weights = torch.softmax(weights, dim=0) ** 0.5
+        s = nn.Softmax(x)
+        weights = (torch.softmax(weights, dim=0) * pred.shape[0]) ** 0.5
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return crit(pred * weights, true * weights).mean(dim=(-1, -2))
