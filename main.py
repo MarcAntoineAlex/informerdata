@@ -27,7 +27,6 @@ def main():
     config = tools.setup()
     ngpus_per_node = torch.cuda.device_count()
     config.ngpus_per_node = ngpus_per_node
-    setup_seed(20)
     if config.mp_dist:
         # Since we have ngpus_per_node processes per node, the total world_size
         # needs to be adjusted accordingly
@@ -47,7 +46,6 @@ def worker(gpu, ngpus_per_node, args_in):
     jobid = os.environ["SLURM_JOBID"]
     procid = int(os.environ["SLURM_PROCID"])
     args.gpu = gpu
-    setup_seed(20)
 
     if args.gpu is not None:
         logger_name = "{}.{}-{:d}-{:d}.search.log".format(args.name, jobid, procid, gpu)
@@ -124,7 +122,6 @@ def worker(gpu, ngpus_per_node, args_in):
 
         torch.cuda.empty_cache()
     logger.info("R{} FINAL RESULT {} {}".format(args.rank, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
-
 
 
 def setup_seed(seed):

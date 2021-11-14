@@ -110,6 +110,7 @@ class Exp_M_Informer(Exp_Basic):
         sampler = None
         if samp:
             indices = list(range(len(data_set)))
+            print("Lenth of data set : ", len(data_set))
             sampler = MyDefiniteSampler(indices, self.device)
             shuffle_flag = False
 
@@ -126,7 +127,7 @@ class Exp_M_Informer(Exp_Basic):
     def _select_optimizer(self):
         W_optim = optim.Adam(self.model.W(), 0.00005, weight_decay=1e-2)
         A_optim = optim.Adam(self.model.A(), self.args.A_lr, betas=(0.5, 0.999),
-                             weight_decay=self.args.A_weight_decay)
+                             weight_decay=0.)
         return W_optim, A_optim
 
     def _select_criterion(self):
@@ -147,7 +148,6 @@ class Exp_M_Informer(Exp_Basic):
     def train(self, ii, setting, logger):
         train_data, train_loader = self._get_data(flag='train', samp=True)
         vali_data, vali_loader = self._get_data(flag='val')
-        next_data, next_loader = self._get_data(flag='train', samp=True)
         test_data, test_loader = self._get_data(flag='test')
 
         path = os.path.join(self.args.path, str(ii))
@@ -188,13 +188,8 @@ class Exp_M_Informer(Exp_Basic):
                     val_iter = iter(vali_loader)
                     val_data = next(val_iter)
 
-                try:
-                    next_data = next(next_iter)
-                except:
-                    next_iter = iter(next_loader)
-                    next_data = next(next_iter)
                 for i in range(len(trn_data)):
-                    trn_data[i], val_data[i], next_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device), next_data[i].float().to(self.device)
+                    trn_data[i], val_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device)
                 iter_count += 1
 
                 # A_optim.zero_grad()
@@ -204,7 +199,8 @@ class Exp_M_Informer(Exp_Basic):
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
-                    loss = self.critere(pred, true, data_count, criterion)
+                    # loss = self.critere(pred, true, data_count, criterion)
+                    loss = criterion(pred, true)  # todo: check
                     loss.backward()
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
@@ -220,7 +216,7 @@ class Exp_M_Informer(Exp_Basic):
                         W_optim.step()
                 train_loss.append(loss.item())
 
-                if (i + 1) % 100 == 0:
+                if (i + 1) % 50 == 0:
                     logger.info("\tR{0} iters: {1}, epoch: {2} | loss: {3:.7f}".format(self.args.rank, i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
                     left_time = speed * ((self.args.train_epochs - epoch) * train_steps - i)
