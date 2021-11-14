@@ -110,10 +110,7 @@ class Exp_M_Informer(Exp_Basic):
         sampler = None
         if samp:
             indices = list(range(len(data_set)))
-            random.shuffle(indices)
-            indices = torch.tensor(indices).to(self.device)
-            dist.broadcast(indices, 0)
-            sampler = MyDefiniteSampler(indices.tolist())
+            sampler = MyDefiniteSampler(indices, self.device)
             shuffle_flag = False
 
         data_loader = DataLoader(

@@ -14,13 +14,19 @@ import torch.backends.cudnn as cudnn
 import argparse
 from utils.config import MInformerConfig
 from torch.utils.data import Sampler
+from random import shuffle
 
 
 class MyDefiniteSampler(Sampler):
-    def __init__(self, indice):
+    def __init__(self, indice, device):
         self.indice = indice
+        self.device = device
 
     def __iter__(self):
+        shuffle(self.indice)
+        tensor_indices = torch.tensor(self.indice).to(self.device)
+        dist.broadcast(tensor_indices, 0)
+        self.indice = tensor_indices.tolist()
         return iter(self.indice)
 
     def __len__(self):
