@@ -188,8 +188,8 @@ class Exp_M_Informer(Exp_Basic):
                     val_iter = iter(vali_loader)
                     val_data = next(val_iter)
 
-                for i in range(len(trn_data)):
-                    trn_data[i], val_data[i] = trn_data[i].float().to(self.device), val_data[i].float().to(self.device)
+                for j in range(len(trn_data)):
+                    trn_data[j], val_data[j] = trn_data[j].float().to(self.device), val_data[j].float().to(self.device)
                 iter_count += 1
 
                 A_optim.zero_grad()
@@ -216,7 +216,6 @@ class Exp_M_Informer(Exp_Basic):
                         W_optim.step()
                 train_loss.append(loss.item())
 
-                print(i)
                 if (i + 1) % 50 == 0:
                     logger.info("\tR{0} iters: {1}, epoch: {2} | loss: {3:.7f}".format(self.args.rank, i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
@@ -347,7 +346,6 @@ class Exp_M_Informer(Exp_Basic):
     def critere(self, pred, true, data_count, criterion, reduction='mean'):
         weights = self.model.arch[data_count:data_count + pred.shape[0]]
         weights = (torch.softmax(weights, dim=0) * 32)
-        print(weights)
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return crit(pred * weights, true * weights).mean(dim=(-1, -2))
