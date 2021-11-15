@@ -32,7 +32,7 @@ class Architect():
 
     def critere(self, pred, true, data_count, reduction='mean'):
         weights = self.net.arch[data_count:data_count + pred.shape[0]]
-        weights = (torch.softmax(weights, dim=0) * self.args.factora) ** 0.5
+        weights = (torch.softmax(weights, dim=0) * 32) ** 0.5
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return crit(pred * weights, true * weights).mean(dim=(-1, -2))

@@ -194,7 +194,7 @@ class Exp_M_Informer(Exp_Basic):
 
                 A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
-                # A_optim.step()
+                A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
