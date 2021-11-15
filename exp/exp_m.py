@@ -194,7 +194,7 @@ class Exp_M_Informer(Exp_Basic):
 
                 A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'], W_optim, data_count)
-                A_optim.step()
+                # A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
@@ -345,7 +345,7 @@ class Exp_M_Informer(Exp_Basic):
 
     def critere(self, pred, true, data_count, criterion, reduction='mean'):
         weights = self.model.arch[data_count:data_count + pred.shape[0]]
-        weights = (torch.softmax(weights, dim=0) * self.args.factora) ** 0.5
+        weights = (torch.softmax(weights, dim=0) * 8)
         print(weights)
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
