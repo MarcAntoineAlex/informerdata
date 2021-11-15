@@ -71,9 +71,8 @@ class Architect():
                 pred, true = self._process_one_batch(next_data, self.v_net)
             dist.broadcast(pred.contiguous(), r)
             if self.args.rank == r+1:
-                trn_data[1] = torch.cat([trn_data[1][:, :self.args.label_len, :], pred], dim=1)
-                pred, true = self._process_one_batch(trn_data, self.net)
-                unreduced_loss = self.critere(pred, true, data_count, reduction='none')
+                own_pred, true = self._process_one_batch(trn_data, self.net)
+                unreduced_loss = self.critere(own_pred, pred, data_count, reduction='none')
                 gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W())
                 with torch.no_grad():
                     for w, vw, g in zip(self.net.W(), self.v_net.W(), gradients):
@@ -144,7 +143,6 @@ class Architect():
         with torch.no_grad():
             self.net.arch.grad = da * xi * xi
         return unreduced_loss.mean()
-
 
     def compute_hessian(self, dw, trn_data, data_count):
         """
