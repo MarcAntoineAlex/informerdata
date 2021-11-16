@@ -126,7 +126,7 @@ class Exp_M_Informer(Exp_Basic):
         return data_set, data_loader
 
     def _select_optimizer(self):
-        W_optim = optim.Adam(self.model.W(), 0.00005, weight_decay=1e-2)
+        W_optim = optim.Adam(self.model.W(), 0.00005, weight_decay=self.args.w_weight_decay)
         A_optim = optim.Adam(self.model.A(), self.args.A_lr, betas=(0.5, 0.999),
                              weight_decay=0.)
         return W_optim, A_optim
