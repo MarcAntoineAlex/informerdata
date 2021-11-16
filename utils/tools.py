@@ -50,7 +50,7 @@ def adjust_learning_rate(optimizer, epoch, args):
         print('Updating learning rate to {}'.format(lr))
 
 class EarlyStopping:
-    def __init__(self, patience=7, verbose=False, delta=0, rank=None):
+    def __init__(self, patience=7, verbose=False, delta=0, rank=None, logger=None):
         self.patience = patience
         self.verbose = verbose
         self.counter = 0
@@ -59,6 +59,7 @@ class EarlyStopping:
         self.val_loss_min = np.Inf
         self.delta = delta
         self.rank = rank
+        self.logger = logger
 
     def __call__(self, val_loss, model, path):
         if self.early_stop:
@@ -69,7 +70,10 @@ class EarlyStopping:
             self.save_checkpoint(val_loss, model, path)
         elif score < self.best_score + self.delta:
             self.counter += 1
-            print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+            if self.rank is None:
+                print(f'EarlyStopping counter: {self.counter} out of {self.patience}')
+            else:
+                self.logger.info(f'R{self.rank} EarlyStopping counter: {self.counter} out of {self.patience}')
             if self.counter >= self.patience:
                 self.early_stop = True
         else:
@@ -79,12 +83,16 @@ class EarlyStopping:
 
     def save_checkpoint(self, val_loss, model, path):
         if self.verbose:
-            print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
+            if self.rank is None:
+                print(f'Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
+            else:
+                self.logger.info(f'R{self.rank} Validation loss decreased ({self.val_loss_min:.6f} --> {val_loss:.6f}).  Saving model ...')
         if self.rank is not None:
             torch.save(model.state_dict(), path + '/' + '{}_checkpoint.pth'.format(self.rank))
         else:
             torch.save(model.state_dict(), path+'/'+'checkpoint.pth')
         self.val_loss_min = val_loss
+
 
 class dotdict(dict):
     """dot.notation access to dictionary attributes"""
