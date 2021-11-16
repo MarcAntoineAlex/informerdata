@@ -12,6 +12,7 @@ import torch
 import torch.nn as nn
 from torch import optim
 from torch.utils.data import DataLoader
+from torch.nn.functional import sigmoid
 import torch.distributed as dist
 
 import os
@@ -345,12 +346,13 @@ class Exp_M_Informer(Exp_Basic):
 
     def critere(self, pred, true, data_count, criterion, reduction='mean'):
         weights = self.model.arch[data_count:data_count + pred.shape[0]]
-        weights = (torch.softmax(weights, dim=0) * 32)
+        weights = sigmoid(weights) * 2
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return crit(pred * weights, true * weights).mean(dim=(-1, -2))
         else:
-            return criterion(pred * weights, true * weights)
+            crit = nn.MSELoss(reduction=reduction)
+            return (crit(pred, true) * weights).mean()
 
 
 

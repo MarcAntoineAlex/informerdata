@@ -6,6 +6,7 @@ import torch.nn as nn
 from utils.tools import broadcast_coalesced, all_reduce_coalesced
 import torch.distributed as dist
 import utils.tools as tools
+from torch.nn.functional import sigmoid
 
 class Architect():
     """ Compute gradients of alphas """
@@ -32,12 +33,13 @@ class Architect():
 
     def critere(self, pred, true, data_count, reduction='mean'):
         weights = self.net.arch[data_count:data_count + pred.shape[0]]
-        weights = (torch.softmax(weights, dim=0) * 32) ** 0.5
+        weights = sigmoid(weights) * 2
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return crit(pred * weights, true * weights).mean(dim=(-1, -2))
         else:
-            return self.criterion(pred * weights, true * weights)
+            crit = nn.MSELoss(reduction='none')
+            return (crit(pred, true) * weights).mean()
 
     def virtual_step(self, trn_data, next_data, xi, w_optim, data_count):
         """
