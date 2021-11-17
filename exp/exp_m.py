@@ -238,6 +238,9 @@ class Exp_M_Informer(Exp_Basic):
             logger.info("R{0} arch{1}".format(self.args.rank, self.model.arch.std()))
             early_stopping(vali_loss, self.model, path)
 
+            if self.args.rank == 0 and ii == 0:
+                np.save(path + '/' + 'arch{}.npy'.format(epoch), self.model.arch[:len(train_data)].detach().squeeze().cpu().numpy())
+
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
             flag = flag.to(self.device)
             flags = [torch.tensor([1]).to(self.device), torch.tensor([1]).to(self.device)]
