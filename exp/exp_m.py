@@ -200,7 +200,7 @@ class Exp_M_Informer(Exp_Basic):
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
-                    loss = self.critere(pred, true, data_count, criterion)
+                    loss = self.critere(pred, true, data_count, train_loader.sampler.indice)
                     # loss = criterion(pred, true)  # todo: check
                     loss.backward()
                     W_optim.step()
@@ -344,8 +344,8 @@ class Exp_M_Informer(Exp_Basic):
 
         return outputs, batch_y
 
-    def critere(self, pred, true, data_count, criterion, reduction='mean'):
-        weights = self.model.arch[data_count:data_count + pred.shape[0]]
+    def critere(self, pred, true, data_count, indice, reduction='mean'):
+        weights = self.model.arch[indice[data_count:data_count + pred.shape[0]], :, :]
         weights = sigmoid(weights) * 2
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
