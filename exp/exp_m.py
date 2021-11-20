@@ -345,7 +345,7 @@ class Exp_M_Informer(Exp_Basic):
 
     def critere(self, pred, true, data_count, indice, reduction='mean'):
         weights = self.model.arch[indice[data_count:data_count + pred.shape[0]], :, :]
-        weights = sigmoid(weights) * 2
+        weights = sigmoid(weights) * self.args.sigmoid
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return (crit(pred, true) * weights).mean(dim=(-1, -2))
