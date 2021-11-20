@@ -96,8 +96,6 @@ class Architect():
         args = args_in
         # do virtual step (calc w`)
         unreduced_loss = self.virtual_step(trn_data, next_data, xi, w_optim, data_count, indice)
-        if torch.isfinite(unreduced_loss).float().min() < 1:
-            print('DAMGER 007')
         hessian = torch.zeros(args.batch_size, args.pred_len, trn_data[1].shape[-1]).to(self.device)
         if self.args.rank == 1:
             # calc unrolled loss
@@ -106,41 +104,34 @@ class Architect():
             # compute gradient
             v_W = list(self.v_net.W())
             dw = list(torch.autograd.grad(loss, v_W))
-            for d in dw:
-                if torch.isfinite(d).float().min() < 1:
-                    print('DAMGER 008')
             hessian = self.compute_hessian(dw, trn_data, data_count, indice)
-            if torch.isfinite(hessian).float().min() < 1:
-                print('DAMGER 009')
+            # clipping hessian
+            max_norm = float(args.max_hessian_grad_norm)
+            hessian_clip = copy.deepcopy(hessian)
+            for n, (h_c, h) in enumerate(zip(hessian_clip, hessian)):
+                h_norm = torch.norm(h.detach(), dim=-1)
+                max_coeff = h_norm / max_norm
+                max_coeff[max_coeff < 1.0] = torch.tensor(1.0).cuda(args.gpu)
+                hessian_clip[n] = torch.div(h, max_coeff.unsqueeze(-1))
+            check = (hessian - hessian_clip).sum(dim=(-1, -2))
+            check[check>0] = 1
+            if check.sum().item()/self.args.batch_size > 0.2:
+                print('DANGER!!!!! TOO MUCH CLIP {}'.format(check.sum().item()/self.args.batch_size))
+            hessian = hessian_clip
         elif self.args.rank == 0:
             dw_list = []
             for i in range(self.args.batch_size):
-                dw_list.append(torch.autograd.grad(unreduced_loss[i], self.net.W(), retain_graph=i!=self.args.batch_size-1))
+                dw_list.append(torch.autograd.grad(unreduced_loss[i], self.net.W(), retain_graph=(i != self.args.batch_size-1)))
         dist.broadcast(hessian, 1)
         da = torch.zeros_like(self.net.arch).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.v_net)
             pseudo_loss = (pred * hessian).sum()
-            if torch.isfinite(pseudo_loss).float().min() < 1:
-                print('DAMGER 010')
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
-            for d in dw0:
-                if torch.isfinite(d).float().min() < 1:
-                    print('DAMGER 011')
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
-                    da[data_count+i] += (a*b).sum()
+                    da[indice[data_count+i]] += (a*b).sum()
         dist.broadcast(da, 0)
-
-        # clipping hessian
-        # max_norm = float(args.max_hessian_grad_norm)
-        # hessian_clip = copy.deepcopy(hessian)
-        # for n, (h_c, h) in enumerate(zip(hessian_clip, hessian)):
-        #     h_norm = torch.norm(h.detach(), dim=-1)
-        #     max_coeff = h_norm / max_norm
-        #     max_coeff[max_coeff < 1.0] = torch.tensor(1.0).cuda(args.gpu)
-        #     hessian_clip[n] = torch.div(h, max_coeff.unsqueeze(-1))
-        # hessian = hessian_clip
 
         # update final gradient = dalpha - xi*hessian
         with torch.no_grad():

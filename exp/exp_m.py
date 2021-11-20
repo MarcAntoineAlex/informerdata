@@ -175,14 +175,9 @@ class Exp_M_Informer(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, trn_data in enumerate(train_loader):
-                true_list = [torch.zeros_like(trn_data[1]).to(self.device) for _ in range(2)]
-                if self.args.rank == 0:
-                    dist.all_gather(true_list, trn_data[1].to(self.device))
-                elif self.args.rank == 1:
-                    dist.all_gather(true_list, trn_data[1].to(self.device))
-                if torch.abs(true_list[0] - true_list[1]).max().item() != 0:
-                    logger.info("DANGER 176")
-
+                for j in trn_data[0].shape[0]:
+                    indice_data0 = train_data[train_loader.sampler.indice[data_count+j]][0]
+                    assert max(indice_data0 - trn_data[0]).item() == 0
                 try:
                     val_data = next(val_iter)
                 except:
