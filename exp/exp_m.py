@@ -175,7 +175,7 @@ class Exp_M_Informer(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, trn_data in enumerate(train_loader):
-                for j in trn_data[0].shape[0]:
+                for j in range(trn_data[0].shape[0]):
                     indice_data0 = train_data[train_loader.sampler.indice[data_count+j]][0]
                     assert max(indice_data0 - trn_data[0]).item() == 0
                 try:
