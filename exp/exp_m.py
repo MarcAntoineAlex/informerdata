@@ -178,7 +178,7 @@ class Exp_M_Informer(Exp_Basic):
                 for j in range(trn_data[0].shape[0]):
                     indice_data0 = train_data[train_loader.sampler.indice[data_count+j]][0]
                     print(indice_data0.shape, indice_data0, trn_data[0][j].shape, trn_data[0][j])
-                    assert max(torch.tensor(indice_data0) - torch.tensor(trn_data[0][j])).item() == 0
+                    assert torch.max(torch.tensor(indice_data0) - torch.tensor(trn_data[0][j])).item() == 0
                 try:
                     val_data = next(val_iter)
                 except:
