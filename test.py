@@ -13,3 +13,25 @@ print(torch.max(a))
 # plt.show()
 # plt.hist(2/(1+np.exp(-data)), bins=20)
 # plt.show()
+"to": [
+            {
+              "pointing_button": "button1"
+            }
+          ]
+"to": [
+            {
+              "pointing_button": "button2"
+            }
+          ]
+"to": [
+            {
+              "mouse_key": {
+                "x": -3200
+              }
+            }
+          ]
+"to": [
+            {
+              "shell_command": "open -a finder"
+            }
+          ]
