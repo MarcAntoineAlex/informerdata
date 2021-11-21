@@ -119,8 +119,8 @@ def worker(gpu, ngpus_per_node, args_in):
         if args.do_predict:
             logger.info('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.predict(setting, True)
-        os.remove(args.path + '{}/0_checkpoint.pth'.format(ii))
-        os.remove(args.path + '{}/1_checkpoint.pth'.format(ii))
+        os.remove(args.path + '/{}/0_checkpoint.pth'.format(ii))
+        os.remove(args.path + '/{}/1_checkpoint.pth'.format(ii))
 
         torch.cuda.empty_cache()
     logger.info("R{} FINAL RESULT {} {}".format(args.rank, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
