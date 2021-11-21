@@ -105,19 +105,19 @@ class Architect():
             v_W = list(self.v_net.W())
             dw = list(torch.autograd.grad(loss, v_W))
             hessian = self.compute_hessian(dw, trn_data, data_count, indice)
-            # clipping hessian
-            max_norm = float(args.max_hessian_grad_norm)
-            hessian_clip = copy.deepcopy(hessian)
-            for n, (h_c, h) in enumerate(zip(hessian_clip, hessian)):
-                h_norm = torch.norm(h.detach(), dim=-1)
-                max_coeff = h_norm / max_norm
-                max_coeff[max_coeff < 1.0] = torch.tensor(1.0).cuda(args.gpu)
-                hessian_clip[n] = torch.div(h, max_coeff.unsqueeze(-1))
-            check = (hessian - hessian_clip).sum(dim=(-1, -2))
-            check[check>0] = 1
-            if check.sum().item()/self.args.batch_size > 0.2:
-                print('DANGER!!!!! TOO MUCH CLIP {}'.format(check.sum().item()/self.args.batch_size))
-            hessian = hessian_clip
+            # # clipping hessian
+            # max_norm = float(args.max_hessian_grad_norm)
+            # hessian_clip = copy.deepcopy(hessian)
+            # for n, (h_c, h) in enumerate(zip(hessian_clip, hessian)):
+            #     h_norm = torch.norm(h.detach(), dim=-1)
+            #     max_coeff = h_norm / max_norm
+            #     max_coeff[max_coeff < 1.0] = torch.tensor(1.0).cuda(args.gpu)
+            #     hessian_clip[n] = torch.div(h, max_coeff.unsqueeze(-1))
+            # check = (hessian - hessian_clip).sum(dim=(-1, -2))
+            # check[check>0] = 1
+            # if check.sum().item()/self.args.batch_size > 0.2:
+            #     print('DANGER!!!!! TOO MUCH CLIP {}'.format(check.sum().item()/self.args.batch_size))
+            # hessian = hessian_clip
         elif self.args.rank == 0:
             dw_list = []
             for i in range(self.args.batch_size):
