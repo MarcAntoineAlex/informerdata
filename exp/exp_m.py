@@ -208,7 +208,7 @@ class Exp_M_Informer(Exp_Basic):
                         own_pred, true = self._process_one_batch(trn_data)
                         loss1 = criterion(own_pred, true)
                         loss2 = criterion(own_pred, pred)
-                        loss = loss1 + loss2 * self.args.lambda_par
+                        loss = loss1 * (1-self.args.lambda_par) + loss2 * self.args.lambda_par
                         loss.backward()
                         W_optim.step()
                 train_loss.append(loss.item())
