@@ -130,7 +130,7 @@ class Architect():
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
-                    da[indice[data_count+i]] += (a*b).sum()
+                    da[data_count+i] += (a*b).sum()
         dist.broadcast(da, 0)
 
         # update final gradient = dalpha - xi*hessian
