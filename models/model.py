@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -14,7 +15,7 @@ class Informer(nn.Module):
                 factor=5, d_model=512, n_heads=8, e_layers=3, d_layers=2, d_ff=512,
                 dropout=0.0, attn='prob', embed='fixed', freq='h', activation='gelu',
                 output_attention = False, distil=True, mix=True,
-                device=torch.device('cuda:0')):
+                device=torch.device('cuda:0'), train_length=8531):
         super(Informer, self).__init__()
         self.pred_len = out_len
         self.attn = attn
@@ -64,7 +65,10 @@ class Informer(nn.Module):
         # self.end_conv1 = nn.Conv1d(in_channels=label_len+out_len, out_channels=out_len, kernel_size=1, bias=True)
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
-        self.arch = torch.nn.Parameter(torch.zeros(10000, 1, 1))
+        # self.arch = torch.nn.Parameter(torch.zeros(10000, 1, 1))
+        self.normal = Normal(train_length//10, train_length)
+        end = train_length - train_length%10
+        self.arch = torch.linspace(0, end, train_length//10, requires_grad=True)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
@@ -176,3 +180,22 @@ class InformerStack(nn.Module):
             return dec_out[:, -self.pred_len:, :], attns
         else:
             return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+
+
+class Normal(nn.Module):
+    def __init__(self, num=10, length=100):
+        super(Normal, self).__init__()
+        self.num = num
+        self.length = length
+        self.stds = torch.ones(num, requires_grad=False)*(length/num/2)
+
+    def forward(self, means):
+        x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num)
+        x = torch.div(torch.pow(x-means, 2), 2 * torch.pow(self.stds, 2))
+        result = 1/((3.1415*2)**0.5 * self.stds) * torch.exp(-x)
+        return (result.sum(dim=-1) * (self.length/self.num))[:, None, None]
+
+
+
+
+

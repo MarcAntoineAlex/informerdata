@@ -32,6 +32,8 @@ class Exp_M_Informer(Exp_Basic):
             'informer': Informer,
             'informerstack': InformerStack,
         }
+        train_data, _ = self._get_data(flag='train', samp=True)
+        train_length = len(train_data)
         if self.args.model == 'informer' or self.args.model == 'informerstack':
             e_layers = self.args.e_layers if self.args.model == 'informer' else self.args.s_layers
             model = model_dict[self.args.model](
@@ -56,6 +58,7 @@ class Exp_M_Informer(Exp_Basic):
                 self.args.distil,
                 self.args.mix,
                 self.device,
+                train_length
             ).float()
         else:
             raise NotImplementedError
@@ -235,7 +238,7 @@ class Exp_M_Informer(Exp_Basic):
             early_stopping(vali_loss, self.model, path)
 
             if self.args.rank == 0 and ii == 0:
-                np.save(path + '/' + 'arch{}.npy'.format(epoch), self.model.arch[:len(train_data)].detach().squeeze().cpu().numpy())
+                np.save(path + '/' + 'arch{}.npy'.format(epoch), self.model.arch[:len(train_data)].clone().squeeze().cpu().numpy())
 
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
             flag = flag.to(self.device)
@@ -344,8 +347,9 @@ class Exp_M_Informer(Exp_Basic):
         return outputs, batch_y
 
     def critere(self, pred, true, data_count, indice, reduction='mean'):
-        weights = self.model.arch[indice[data_count:data_count + pred.shape[0]], :, :]
-        weights = sigmoid(weights) * self.args.sigmoid
+        # weights = self.model.arch[indice[data_count:data_count + pred.shape[0]], :, :]
+        # weights = sigmoid(weights) * self.args.sigmoid
+        weights = self.model.normal(self.model.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return (crit(pred, true) * weights).mean(dim=(-1, -2))

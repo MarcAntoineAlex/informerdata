@@ -33,8 +33,9 @@ class Architect():
             self.inverse_transform = inverse_transform
 
     def critere(self, pred, true, data_count, indice, reduction='mean'):
-        weights = self.net.arch[indice[data_count:data_count + pred.shape[0]], :, :]
-        weights = sigmoid(weights) * self.args.sigmoid
+        # weights = self.net.arch[indice[data_count:data_count + pred.shape[0]], :, :]
+        weights = self.net.normal(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
+        # weights = sigmoid(weights) * self.args.sigmoid
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return (crit(pred, true) * weights).mean(dim=(-1, -2))
@@ -128,9 +129,13 @@ class Architect():
             pred, true = self._process_one_batch(trn_data, self.v_net)
             pseudo_loss = (pred * hessian).sum()
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
+            weights = self.net.normal(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
+            d_weights = torch.ones(self.args.batch_size, requires_grad=False)[:, None, None]
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
-                    da[data_count+i] += (a*b).sum()
+                    d_weights[i] += (a*b).sum()
+            aux_loss = (d_weights * weights).sum()
+            da = torch.autograd.grad(aux_loss, self.net.arch)
         dist.broadcast(da, 0)
 
         # update final gradient = dalpha - xi*hessian
@@ -156,35 +161,16 @@ class Architect():
             for p, d in zip(self.net.W(), dw):
                 p += eps_w * d
         pred, true = self._process_one_batch(trn_data, self.net)
-        loss = self.critere(pred, true, data_count, indice)
+        loss = self.criterion(pred, true)
         dE_pos = torch.autograd.grad(loss, [trn_data[1]])[0][:, -self.args.pred_len:, :]
-        # dE_poss = [torch.zeros(dE_pos.shape).to(self.device) for i in range(self.args.world_size)]
-        # dist.all_gather(dE_poss, dE_pos)
-        # if self.args.rank < self.args.world_size-1:
-        #     pred, _ = self._process_one_batch(next_data, self.v_net)
-        #     pseudo_loss = (pred*dE_poss[self.args.rank+1]).sum()
-        #     dH2_wpos = list(torch.autograd.grad(pseudo_loss, self.v_net.W()))
-        #     for i in zero_list2:
-        #         dH2_wpos[i] *= 0
-        # for i in zero_list:
-        #     dH_wpos[i] *= 0
+
         # w- = w - eps*dw`
         with torch.no_grad():
             for p, d in zip(self.net.W(), dw):
                 p -= 2. * eps_w * d
         pred, true = self._process_one_batch(trn_data, self.net)
-        loss = self.critere(pred, true, data_count, indice)
+        loss = self.criterion(pred, true)
         dE_neg = torch.autograd.grad(loss, [trn_data[1]])[0][:, -self.args.pred_len:, :]
-        # dD_wnegs = [torch.zeros(dD_wneg.shape).to(self.device) for i in range(args.world_size)]
-        # dist.all_gather(dD_wnegs, dD_wneg)
-        # if args.rank < args.world_size-1:
-        #     pred, _ = self._process_one_batch(next_data, self.v_net)
-        #     pseudo_loss = (pred*dD_wnegs[args.rank+1]).sum()
-        #     dH2_wneg = list(torch.autograd.grad(pseudo_loss, self.v_net.H()))
-        #     for i in zero_list2:
-        #         dH2_wneg[i] *= 0
-        # for i in zero_list:
-        #     dH_wneg[i] *= 0
 
         # recover w
         with torch.no_grad():
