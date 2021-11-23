@@ -69,7 +69,7 @@ class Informer(nn.Module):
         # self.arch = torch.nn.Parameter(torch.zeros(10000, 1, 1))
         self.normal = Normal(train_length//10, train_length)
         end = train_length - train_length%10
-        self.arch = torch.linspace(0, end, train_length//10, requires_grad=True).to(self.device)
+        self.arch = nn.Parameter(torch.linspace(0, end, train_length//10, requires_grad=True))
         print(self.arch, self.arch.shape)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
