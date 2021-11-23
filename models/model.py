@@ -62,13 +62,14 @@ class Informer(nn.Module):
             ],
             norm_layer=torch.nn.LayerNorm(d_model)
         )
+        self.device = device
         # self.end_conv1 = nn.Conv1d(in_channels=label_len+out_len, out_channels=out_len, kernel_size=1, bias=True)
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
         # self.arch = torch.nn.Parameter(torch.zeros(10000, 1, 1))
         self.normal = Normal(train_length//10, train_length)
         end = train_length - train_length%10
-        self.arch = torch.linspace(0, end, train_length//10, requires_grad=True)
+        self.arch = torch.linspace(0, end, train_length//10, requires_grad=True).to(self.device)
         print(self.arch, self.arch.shape)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
