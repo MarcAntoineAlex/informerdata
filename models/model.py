@@ -192,7 +192,7 @@ class Normal(nn.Module):
         self.device = device
 
     def forward(self, means):
-        x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num).to(self.devices)
+        x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num).to(self.device)
         x = torch.div(torch.pow(x-means, 2), 2 * torch.pow(self.stds, 2))
         result = 1/((3.1415*2)**0.5 * self.stds) * torch.exp(-x)
         return (result.sum(dim=-1) * (self.length/self.num))[:, None, None]
