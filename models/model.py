@@ -189,6 +189,7 @@ class Normal(nn.Module):
         self.num = num
         self.length = length
         self.stds = nn.Parameter(torch.ones(num)*(length/num/2))
+        #
 
     def forward(self, means):
         x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num)
