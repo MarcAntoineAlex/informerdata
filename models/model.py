@@ -67,10 +67,9 @@ class Informer(nn.Module):
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
         # self.arch = torch.nn.Parameter(torch.zeros(10000, 1, 1))
-        self.normal = Normal(train_length//10, train_length)
+        self.normal_prob = Normal(train_length // 10, train_length)
         end = train_length - train_length%10
         self.arch = nn.Parameter(torch.linspace(0, end, train_length//10, requires_grad=True))
-        print(self.arch, self.arch.shape)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
@@ -90,14 +89,14 @@ class Informer(nn.Module):
 
     def W(self):
         for n, p in self.named_parameters():
-            if 'arch' in n:
+            if 'arch' in n or 'normal_prob' in n:
                 pass
             else:
                 yield p
 
     def named_W(self):
         for n, p in self.named_parameters():
-            if 'arch' in n:
+            if 'arch' in n or 'normal_prob' in n:
                 pass
             else:
                 yield n, p
@@ -189,7 +188,7 @@ class Normal(nn.Module):
         super(Normal, self).__init__()
         self.num = num
         self.length = length
-        self.stds = torch.ones(num, requires_grad=False)*(length/num/2)
+        self.stds = nn.Parameter(torch.ones(num)*(length/num/2))
 
     def forward(self, means):
         x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num)

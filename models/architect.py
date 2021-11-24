@@ -34,7 +34,7 @@ class Architect():
 
     def critere(self, pred, true, data_count, indice, reduction='mean'):
         # weights = self.net.arch[indice[data_count:data_count + pred.shape[0]], :, :]
-        weights = self.net.normal(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
+        weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
         # weights = sigmoid(weights) * self.args.sigmoid
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
@@ -129,7 +129,7 @@ class Architect():
             pred, true = self._process_one_batch(trn_data, self.v_net)
             pseudo_loss = (pred * hessian).sum()
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
-            weights = self.net.normal(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
+            weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
             d_weights = torch.ones(self.args.batch_size, requires_grad=False)[:, None, None]
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
