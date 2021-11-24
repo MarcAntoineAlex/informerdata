@@ -135,7 +135,7 @@ class Architect():
                 for a, b in zip(dw_list[i], dw0):
                     d_weights[i] += (a*b).sum()
             aux_loss = (d_weights * weights).sum()
-            da = torch.autograd.grad(aux_loss, self.net.arch)
+            da = torch.autograd.grad(aux_loss, self.net.arch)[0]
         dist.broadcast(da, 0)
 
         # update final gradient = dalpha - xi*hessian
