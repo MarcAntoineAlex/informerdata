@@ -61,7 +61,7 @@ def worker(gpu, ngpus_per_node, args_in):
         # For multiprocessing distributed training, rank needs to be the
         # global rank among all the processes
         args.rank = args.rank * ngpus_per_node + gpu
-
+    logger.info("Pred_len = {}".format(args.pred_len))
     args.print_params(logger.info)
 
     # get cuda device

@@ -224,7 +224,6 @@ class Exp_M_Informer(Exp_Basic):
                     iter_count = 0
                     time_now = time.time()
 
-
                 data_count += self.args.batch_size
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))

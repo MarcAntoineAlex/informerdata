@@ -67,9 +67,9 @@ class Informer(nn.Module):
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
         # self.arch = torch.nn.Parameter(torch.zeros(10000, 1, 1))
-        self.normal_prob = Normal(device, train_length // 10, train_length)
-        end = train_length - train_length%10
-        self.arch = nn.Parameter(torch.linspace(0, end, train_length//10, requires_grad=True))
+        self.normal_prob = Normal(device, train_length // 100, train_length)
+        end = train_length - train_length % 100
+        self.arch = nn.Parameter(torch.linspace(0, end, train_length//100))
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
@@ -184,17 +184,19 @@ class InformerStack(nn.Module):
 
 
 class Normal(nn.Module):
-    def __init__(self, device, num=10, length=100):
+    def __init__(self, device=None, num=10, length=100):
         super(Normal, self).__init__()
         self.num = num
         self.length = length
-        self.stds = nn.Parameter(torch.ones(num)*(length/num/2))
         self.device = device
 
     def forward(self, means):
-        x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num).to(self.device)
-        x = torch.div(torch.pow(x-means, 2), 2 * torch.pow(self.stds, 2))
-        result = 1/((3.1415*2)**0.5 * self.stds) * torch.exp(-x)
+        stds = torch.ones(self.num)*(self.length/self.num/2)
+        x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num)
+        if self.device is not None:
+            x = x.to(self.device)
+        x = torch.div(torch.pow(x-means, 2), 2 * torch.pow(stds, 2))
+        result = 1/((3.1415*2)**0.5 * stds) * torch.exp(-x)
         return (result.sum(dim=-1) * (self.length/self.num))[:, None, None]
 
 
