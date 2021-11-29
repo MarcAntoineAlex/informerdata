@@ -129,7 +129,7 @@ class Architect():
             assert pred.shape == hessian.shape
             pseudo_loss = (pred * hessian).sum()
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
-            weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
+            weights = self.net.normal_prob(self.net.arch, self.net.arch_1)[indice[data_count:data_count + pred.shape[0]], :, :]
             d_weights = torch.ones(self.args.batch_size, requires_grad=False)[:, None, None].to(self.device)
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
