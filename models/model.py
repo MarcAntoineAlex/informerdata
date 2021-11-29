@@ -201,7 +201,7 @@ class Normal(nn.Module):
             stds = stds.to(self.device)
         x = torch.div(torch.pow(x-means, 2), 2 * torch.pow(stds, 2))
         result = 1/((3.1415*2)**0.5 * stds) * torch.exp(-x) * means_factor
-        return (result.sum(dim=-1))[:, None, None]
+        return (result.sum(dim=-1)+1)[:, None, None]
 
 
 
