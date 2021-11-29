@@ -3,7 +3,6 @@ import copy
 
 import torch
 import torch.nn as nn
-from utils.tools import broadcast_coalesced, all_reduce_coalesced
 import torch.distributed as dist
 import utils.tools as tools
 from torch.nn.functional import sigmoid
@@ -34,7 +33,7 @@ class Architect():
 
     def critere(self, pred, true, data_count, indice, reduction='mean'):
         # weights = self.net.arch[indice[data_count:data_count + pred.shape[0]], :, :]
-        weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
+        weights = self.net.normal_prob(self.net.arch, self.net.arch_1)[indice[data_count:data_count + pred.shape[0]], :, :]
         # weights = sigmoid(weights) * self.args.sigmoid
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
@@ -127,12 +126,14 @@ class Architect():
         da = torch.zeros_like(self.net.arch).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.v_net)
+            assert pred.shape == hessian.shape
             pseudo_loss = (pred * hessian).sum()
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
             weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
             d_weights = torch.ones(self.args.batch_size, requires_grad=False)[:, None, None].to(self.device)
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
+                    assert a.shape == b.shape
                     d_weights[i] += (a*b).sum()
             aux_loss = (d_weights * weights).sum()
             da = torch.autograd.grad(aux_loss, self.net.arch)[0]

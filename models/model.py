@@ -70,6 +70,7 @@ class Informer(nn.Module):
         self.normal_prob = Normal(device, train_length // 100, train_length)
         end = train_length - train_length % 100
         self.arch = nn.Parameter(torch.linspace(0, end, train_length//100))
+        self.arch_1 = nn.Parameter(torch.ones(train_length//100)*1e-2)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
@@ -102,7 +103,9 @@ class Informer(nn.Module):
                 yield n, p
 
     def A(self):
-        yield self.arch
+        for n, p in self.named_parameters():
+            if 'arch' in n or 'normal_prob' in n:
+                yield p
 
 
 class InformerStack(nn.Module):
@@ -190,15 +193,15 @@ class Normal(nn.Module):
         self.length = length
         self.device = device
 
-    def forward(self, means):
+    def forward(self, means, means_factor):
         stds = torch.ones(self.num)*(self.length/self.num/2)
         x = torch.arange(self.length).unsqueeze(-1).expand(self.length, self.num)
         if self.device is not None:
             x = x.to(self.device)
             stds = stds.to(self.device)
         x = torch.div(torch.pow(x-means, 2), 2 * torch.pow(stds, 2))
-        result = 1/((3.1415*2)**0.5 * stds) * torch.exp(-x)
-        return (result.sum(dim=-1) * (self.length/self.num))[:, None, None]
+        result = 1/((3.1415*2)**0.5 * stds) * torch.exp(-x) * means_factor
+        return (result.sum(dim=-1))[:, None, None]
 
 
 
