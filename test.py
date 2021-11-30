@@ -8,22 +8,20 @@ from models.model import Normal
 # plt.plot(after)
 # plt.show()
 data = []
-a = torch.rand(2, 3)
-b = torch.rand(2, 3)
-print(a.shape == b.shape)
-# for i in range(9):
-#     data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/377695/0/arch{}.npy'.format(i))))
-#
-# normal = Normal(num=852, length=8521)
-#
-# for i in range(1, 9):
-#     afteri = normal(data[i]).squeeze().detach().numpy()
-#     afteri_1 = normal(data[i-1]).squeeze().detach().numpy()[1000:1500]
-#     print(afteri.shape)
-#     # diff = afteri - afteri_1
-#     # plt.scatter(np.arange(len(afteri_1)), afteri_1, s=0.5)
-#     plt.plot(afteri_1)
-#     plt.show()
+
+for i in range(9):
+    data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/379725/0/arch{}.npy'.format(i))))
+
+normal = Normal(num=852, length=8521)
+
+for i in range(1, 9):
+    afteri = normal(data[i]).squeeze().detach().numpy()
+    afteri_1 = normal(data[i-1]).squeeze().detach().numpy()[1000:1500]
+    print(afteri.shape)
+    # diff = afteri - afteri_1
+    # plt.scatter(np.arange(len(afteri_1)), afteri_1, s=0.5)
+    plt.plot(afteri_1)
+    plt.show()
 
 
 
