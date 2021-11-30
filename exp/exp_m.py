@@ -238,6 +238,7 @@ class Exp_M_Informer(Exp_Basic):
 
             if self.args.rank == 0 and ii == 0:
                 np.save(path + '/' + 'arch{}.npy'.format(epoch), self.model.arch.detach().squeeze().cpu().numpy())
+                np.save(path + '/' + 'arch_factor{}.npy'.format(epoch), self.model.arch_1.detach().squeeze().cpu().numpy())
 
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
             flag = flag.to(self.device)

@@ -137,11 +137,12 @@ class Architect():
                     d_weights[i] += (a*b).sum()
             aux_loss = (d_weights * weights).sum()
             da = torch.autograd.grad(aux_loss, self.net.arch)[0]
-        dist.broadcast(da, 0)
+            da_1 = torch.autograd.grad(aux_loss, self.net.arch_1)[0]
 
-        # update final gradient = dalpha - xi*hessian
-        with torch.no_grad():
-            self.net.arch.grad = da * xi * xi
+            # update final gradient = dalpha - xi*hessian
+            with torch.no_grad():
+                self.net.arch.grad = da * xi * xi
+                self.net.arch_1.grad = da_1 * xi * xi
         return unreduced_loss.mean()
 
     def compute_hessian(self, dw, trn_data, data_count, indice):
