@@ -136,7 +136,7 @@ class Architect():
                     assert a.shape == b.shape
                     d_weights[i] += (a*b).sum()
             aux_loss = (d_weights * weights).sum()
-            da = torch.autograd.grad(aux_loss, self.net.arch)[0]
+            da = torch.autograd.grad(aux_loss, self.net.arch, retain_graph=True)[0]
             da_1 = torch.autograd.grad(aux_loss, self.net.arch_1)[0]
 
             # update final gradient = dalpha - xi*hessian
