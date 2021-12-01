@@ -70,7 +70,7 @@ class Informer(nn.Module):
         self.normal_prob = Normal(device, train_length // 100, train_length)
         end = train_length - train_length % 100
         self.arch = nn.Parameter(torch.linspace(0, end, train_length//100))
-        self.arch_1 = nn.Parameter(torch.ones(train_length//100)*1e-2)
+        self.arch_1 = nn.Parameter(torch.ones(train_length//100)*1e-1)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):

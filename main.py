@@ -70,7 +70,6 @@ def worker(gpu, ngpus_per_node, args_in):
     # begin
     logger.info("Logger is set - training start")
 
-
     logger.info(
         'back:{}, dist_url:{}, world_size:{}, rank:{}'.format(args.dist_backend, args.dist_url, args.world_size,
                                                               args.rank))
@@ -115,7 +114,6 @@ def worker(gpu, ngpus_per_node, args_in):
         mses.append(mse.item())
         maes.append(mae.item())
 
-
         if args.do_predict:
             logger.info('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
             exp.predict(setting, True)
@@ -124,6 +122,8 @@ def worker(gpu, ngpus_per_node, args_in):
             os.remove(args.path + '/{}/1_checkpoint.pth'.format(ii))
 
         torch.cuda.empty_cache()
+    mses, maes = torch.sort(torch.tensor(mses))[0][:-2].mean(), torch.sort(torch.tensor(maes))[0][:-2].mean()
+
     logger.info("R{} FINAL RESULT {} {}".format(args.rank, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
 
 
@@ -133,6 +133,7 @@ def setup_seed(seed):
      np.random.seed(seed)
      random.seed(seed)
      torch.backends.cudnn.deterministic = True
+
 
 if __name__ == '__main__':
     main()
