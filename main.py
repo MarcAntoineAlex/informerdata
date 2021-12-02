@@ -61,7 +61,7 @@ def worker(gpu, ngpus_per_node, args_in):
         # For multiprocessing distributed training, rank needs to be the
         # global rank among all the processes
         args.rank = args.rank * ngpus_per_node + gpu
-    logger.info("Pred_len = {}".format(args.pred_len))
+    logger.info("Setting: Pred_len: {}  Lambda_par: {}  A_lr A_decay: {}  ".format(args.pred_len))
     args.print_params(logger.info)
 
     # get cuda device
@@ -124,7 +124,7 @@ def worker(gpu, ngpus_per_node, args_in):
         torch.cuda.empty_cache()
     mses, maes = torch.sort(torch.tensor(mses))[0][:-2].mean(), torch.sort(torch.tensor(maes))[0][:-2].mean()
 
-    logger.info("R{} FINAL RESULT {} {}".format(args.rank, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
+    logger.info("R{} PRED {} FINAL RESULT {} {}".format(args.rank, args.pred_len, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
 
 
 def setup_seed(seed):

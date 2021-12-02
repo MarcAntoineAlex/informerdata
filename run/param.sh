@@ -27,7 +27,12 @@ export NCCL_IB_DISABLE=1
 export MKL_THREADING_LAYER=GNU
 export CUDA_HOME=/usr/local/cuda-10.2
 # sugon does not support infiniband
-srun python -u main.py --pred_len 24 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name test --data ETTh1
-srun python -u main.py --pred_len 48 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name test --data ETTh1
-srun python -u main.py --pred_len 168 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name test --data ETTh1
-srun python -u main.py --pred_len 336 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name test --data ETTh1
+srun python -u main.py --pred_len 24 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name param --data ETTh1
+srun python -u main.py --pred_len 48 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name param --data ETTh1
+srun python -u main.py --pred_len 168 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name param --data ETTh1
+srun python -u main.py --pred_len 336 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --name param --data ETTh1
+
+srun python -u main.py --pred_len 24 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --features S --name param --data ETTh1
+srun python -u main.py --pred_len 48 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --features S --name param --data ETTh1
+srun python -u main.py --pred_len 168 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --features S --name param --data ETTh1
+srun python -u main.py --pred_len 336 --lambda_par 0.4 --A_lr 0.03 --w_weight_decay 0.001 --features S --name param --data ETTh1

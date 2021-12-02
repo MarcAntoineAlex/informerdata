@@ -129,9 +129,9 @@ class Exp_M_Informer(Exp_Basic):
         return data_set, data_loader
 
     def _select_optimizer(self):
-        W_optim = optim.Adam(self.model.W(), 0.00005, weight_decay=self.args.w_weight_decay)
+        W_optim = optim.Adam(self.model.W(), 0.0001, weight_decay=self.args.w_weight_decay)
         A_optim = optim.Adam(self.model.A(), self.args.A_lr, betas=(0.5, 0.999),
-                             weight_decay=0.)
+                             weight_decay=self.args.A_weight_decay)
         return W_optim, A_optim
 
     def _select_criterion(self):
@@ -167,9 +167,6 @@ class Exp_M_Informer(Exp_Basic):
         W_optim, A_optim = self._select_optimizer()
         criterion = self._select_criterion()
 
-        if self.args.use_amp:
-            scaler = torch.cuda.amp.GradScaler()
-
         for epoch in range(self.args.train_epochs):
             iter_count = 0
             data_count = 0
@@ -178,9 +175,6 @@ class Exp_M_Informer(Exp_Basic):
             self.model.train()
             epoch_time = time.time()
             for i, trn_data in enumerate(train_loader):
-                for j in range(trn_data[0].shape[0]):
-                    indice_data0 = train_data[train_loader.sampler.indice[data_count+j]][0]
-                    assert torch.max(torch.tensor(indice_data0) - torch.tensor(trn_data[0][j])).item() == 0
                 try:
                     val_data = next(val_iter)
                 except:
@@ -194,13 +188,11 @@ class Exp_M_Informer(Exp_Basic):
                 A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
                                                    W_optim, data_count, train_loader.sampler.indice)
-                A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
                     loss = self.critere(pred, true, data_count, train_loader.sampler.indice)
-                    # loss = criterion(pred, true)  # todo: check
                     loss.backward()
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
@@ -225,6 +217,7 @@ class Exp_M_Informer(Exp_Basic):
                     time_now = time.time()
 
                 data_count += self.args.batch_size
+            A_optim.step()
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
