@@ -10,9 +10,9 @@ from models.model import Normal
 data = []
 data_factor = []
 
-for i in range(9):
-    data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/380690/0/arch{}.npy'.format(i))))
-    data_factor.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/380690/0/arch_factor{}.npy'.format(i))))
+for i in range(7):
+    data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/380987/0/arch{}.npy'.format(i))))
+    data_factor.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/380987/0/arch_factor{}.npy'.format(i))))
 #
 normal = Normal(num=84, length=8521)
 #
