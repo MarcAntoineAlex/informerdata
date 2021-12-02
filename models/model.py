@@ -66,11 +66,11 @@ class Informer(nn.Module):
         # self.end_conv1 = nn.Conv1d(in_channels=label_len+out_len, out_channels=out_len, kernel_size=1, bias=True)
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
-        # self.arch = torch.nn.Parameter(torch.zeros(10000, 1, 1))
-        self.normal_prob = Normal(device, train_length // 100, train_length)
-        end = train_length - train_length % 100
-        self.arch = nn.Parameter(torch.linspace(0, end, train_length//100))
-        self.arch_1 = nn.Parameter(torch.ones(train_length//100)*1e-1)
+        self.arch = torch.nn.Parameter(torch.zeros(train_length, 1, 1))
+        # self.normal_prob = Normal(device, train_length // 100, train_length)
+        # end = train_length - train_length % 100
+        # self.arch = nn.Parameter(torch.linspace(0, end, train_length//100))
+        # self.arch_1 = nn.Parameter(torch.ones(train_length//100)*1e-1)
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):

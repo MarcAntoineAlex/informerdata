@@ -238,7 +238,7 @@ class Exp_M_Informer(Exp_Basic):
 
             if self.args.rank == 0 and ii == 0:
                 np.save(path + '/' + 'arch{}.npy'.format(epoch), self.model.arch.detach().squeeze().cpu().numpy())
-                np.save(path + '/' + 'arch_factor{}.npy'.format(epoch), self.model.arch_1.detach().squeeze().cpu().numpy())
+                # np.save(path + '/' + 'arch_factor{}.npy'.format(epoch), self.model.arch_1.detach().squeeze().cpu().numpy())
 
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
             flag = flag.to(self.device)
@@ -347,9 +347,9 @@ class Exp_M_Informer(Exp_Basic):
         return outputs, batch_y
 
     def critere(self, pred, true, data_count, indice, reduction='mean'):
-        # weights = self.model.arch[indice[data_count:data_count + pred.shape[0]], :, :]
-        # weights = sigmoid(weights) * self.args.sigmoid
-        weights = self.model.normal_prob(self.model.arch, self.model.arch_1)[indice[data_count:data_count + pred.shape[0]], :, :]
+        weights = self.model.arch[indice[data_count:data_count + pred.shape[0]], :, :]
+        weights = sigmoid(weights) * self.args.sigmoid
+        # weights = self.model.normal_prob(self.model.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return (crit(pred, true) * weights).mean(dim=(-1, -2))
