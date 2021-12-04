@@ -241,7 +241,7 @@ class Exp_M_Informer(Exp_Basic):
                 logger.info("Early stopping")
                 break
 
-            # adjust_learning_rate(W_optim, epoch + 1, self.args)
+            adjust_learning_rate(W_optim, epoch + 1, self.args)
             self.test(setting, logger)
 
         best_model_path = path + '/' + '{}_checkpoint.pth'.format(self.args.rank)
