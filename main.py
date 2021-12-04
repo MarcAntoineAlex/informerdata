@@ -62,7 +62,7 @@ def worker(gpu, ngpus_per_node, args_in):
         # global rank among all the processes
         args.rank = args.rank * ngpus_per_node + gpu
     logger.info("Setting: Pred_len: {}  Lambda_par: {}  A_lr {} A_decay: {}  ".format(
-                args.pred_len, args.lambda_par, args.A_lr, args.A_decay))
+                args.pred_len, args.lambda_par, args.A_lr, args.A_weight_decay))
     args.print_params(logger.info)
 
     # get cuda device
