@@ -49,9 +49,9 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--gpu', default=None, type=int, nargs='+', help='local GPU id to use')
 
         # informer settings
-        parser.add_argument('--model', type=str, required=True, default='informer',
+        parser.add_argument('--model', type=str, default='informer',
                             help='model of experiment, options: [informer, informerstack, informerlight(TBD)]')
-        parser.add_argument('--data', type=str, required=True, default='ETTh1', help='data')
+        parser.add_argument('--data', type=str, default='ETTh1', help='data')
         parser.add_argument('--root_path', type=str, default='/home/LAB/gaoch/asdf/data/ETDataset/ETT-small/', help='root path of the data file')
         parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
         parser.add_argument('--features', type=str, default='M',
