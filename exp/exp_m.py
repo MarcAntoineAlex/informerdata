@@ -131,7 +131,7 @@ class Exp_M_Informer(Exp_Basic):
     def _select_optimizer(self):
         W_optim = optim.Adam(self.model.W(), 0.0001, weight_decay=self.args.w_weight_decay)
         A_optim = optim.Adam(self.model.A(), self.args.A_lr, betas=(0.5, 0.999),
-                             weight_decay=self.args.A_weight_decay)
+                             weight_decay=0)
         return W_optim, A_optim
 
     def _select_criterion(self):
@@ -174,7 +174,6 @@ class Exp_M_Informer(Exp_Basic):
 
             self.model.train()
             epoch_time = time.time()
-            A_optim.zero_grad()
             for i, trn_data in enumerate(train_loader):
                 try:
                     val_data = next(val_iter)
@@ -186,9 +185,11 @@ class Exp_M_Informer(Exp_Basic):
                     trn_data[j], val_data[j] = trn_data[j].float().to(self.device), val_data[j].float().to(self.device)
                 iter_count += 1
                 indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
-
+                A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
                                                    W_optim, indice)
+                A_optim.step()
+
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
@@ -218,7 +219,6 @@ class Exp_M_Informer(Exp_Basic):
                     time_now = time.time()
 
                 data_count += self.args.batch_size
-            A_optim.step()
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
