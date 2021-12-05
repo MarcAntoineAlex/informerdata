@@ -31,8 +31,8 @@ class Architect():
         if self.args.inverse:
             self.inverse_transform = inverse_transform
 
-    def critere(self, pred, true, data_count, indice, reduction='mean'):
-        weights = self.net.arch[indice[data_count:data_count + pred.shape[0]], :, :]
+    def critere(self, pred, true, indice, reduction='mean'):
+        weights = self.net.arch[indice, :, :]
         # weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
         weights = sigmoid(weights) * self.args.sigmoid
         if reduction != 'mean':
@@ -42,7 +42,7 @@ class Architect():
             crit = nn.MSELoss(reduction='none')
             return (crit(pred, true) * weights).mean()
 
-    def virtual_step(self, trn_data, next_data, xi, w_optim, data_count, indice):
+    def virtual_step(self, trn_data, next_data, xi, w_optim, indice):
         """
         Compute unrolled weight w' (virtual step)
 
@@ -60,7 +60,7 @@ class Architect():
         pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.net)
-            unreduced_loss = self.critere(pred, true, data_count, indice, reduction='none')
+            unreduced_loss = self.critere(pred, true, indice, reduction='none')
             gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W(), retain_graph=True)
             with torch.no_grad():
                 for w, vw, g in zip(self.net.W(), self.v_net.W(), gradients):
@@ -75,7 +75,7 @@ class Architect():
             dist.broadcast(pred.contiguous(), r)
             if self.args.rank == r+1:
                 own_pred, true = self._process_one_batch(trn_data, self.net)
-                unreduced_loss = self.critere(own_pred, pred, data_count, indice, reduction='none')
+                unreduced_loss = self.critere(own_pred, pred, indice, reduction='none')
                 gradients = torch.autograd.grad(unreduced_loss.mean(), self.net.W())
                 with torch.no_grad():
                     for w, vw, g in zip(self.net.W(), self.v_net.W(), gradients):
@@ -86,7 +86,7 @@ class Architect():
                         va.copy_(a)
         return unreduced_loss
 
-    def unrolled_backward(self, args_in, trn_data, val_data, next_data, xi, w_optim, data_count, indice):
+    def unrolled_backward(self, args_in, trn_data, val_data, next_data, xi, w_optim, indice):
         """ Compute unrolled loss and backward its gradients
         Args:
             xi: learning rate for virtual gradient step (same as net lr)
@@ -95,7 +95,7 @@ class Architect():
         # init config
         args = args_in
         # do virtual step (calc w`)
-        unreduced_loss = self.virtual_step(trn_data, next_data, xi, w_optim, data_count, indice)
+        unreduced_loss = self.virtual_step(trn_data, next_data, xi, w_optim, indice)
         hessian = torch.zeros(args.batch_size, args.pred_len, trn_data[1].shape[-1]).to(self.device)
         if self.args.rank == 1:
             # calc unrolled loss
@@ -104,7 +104,7 @@ class Architect():
             # compute gradient
             v_W = list(self.v_net.W())
             dw = list(torch.autograd.grad(loss, v_W))
-            hessian = self.compute_hessian(dw, trn_data, data_count, indice)
+            hessian = self.compute_hessian(dw, trn_data)
             # # clipping hessian
             # max_norm = float(args.max_hessian_grad_norm)
             # hessian_clip = copy.deepcopy(hessian)
@@ -140,7 +140,7 @@ class Architect():
             # da_1 = torch.autograd.grad(aux_loss, self.net.arch_1)[0]
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
-                    da[indice[data_count+i]] += (a*b).sum()
+                    da[indice[i]] += (a*b).sum()
 
             # update final gradient = dalpha - xi*hessian
             with torch.no_grad():
@@ -148,7 +148,7 @@ class Architect():
                 # self.net.arch_1.grad = da_1 * xi * xi
         return unreduced_loss.mean()
 
-    def compute_hessian(self, dw, trn_data, data_count, indice):
+    def compute_hessian(self, dw, trn_data):
         """
         dw = dw` { L_val(alpha, w`, h`) }, dh = dh` { L_val(alpha, w`, h`) }
         w+ = w + eps_w * dw, h+ = h + eps_h * dh

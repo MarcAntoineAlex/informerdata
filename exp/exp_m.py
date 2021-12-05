@@ -174,6 +174,7 @@ class Exp_M_Informer(Exp_Basic):
 
             self.model.train()
             epoch_time = time.time()
+            A_optim.zero_grad()
             for i, trn_data in enumerate(train_loader):
                 try:
                     val_data = next(val_iter)
@@ -184,15 +185,15 @@ class Exp_M_Informer(Exp_Basic):
                 for j in range(len(trn_data)):
                     trn_data[j], val_data[j] = trn_data[j].float().to(self.device), val_data[j].float().to(self.device)
                 iter_count += 1
+                indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
 
-                A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
-                                                   W_optim, data_count, train_loader.sampler.indice)
+                                                   W_optim, indice)
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
-                    loss = self.critere(pred, true, data_count, train_loader.sampler.indice)
+                    loss = self.critere(pred, true, indice)
                     loss.backward()
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
@@ -339,8 +340,8 @@ class Exp_M_Informer(Exp_Basic):
 
         return outputs, batch_y
 
-    def critere(self, pred, true, data_count, indice, reduction='mean'):
-        weights = self.model.arch[indice[data_count:data_count + pred.shape[0]], :, :]
+    def critere(self, pred, true, indice, reduction='mean'):
+        weights = self.model.arch[indice, :, :]
         weights = sigmoid(weights) * self.args.sigmoid
         # weights = self.model.normal_prob(self.model.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
         if reduction != 'mean':
