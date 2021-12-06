@@ -90,22 +90,20 @@ class Informer(nn.Module):
 
     def W(self):
         for n, p in self.named_parameters():
-            if 'arch' in n or 'normal_prob' in n:
+            if 'arch' in n:
                 pass
             else:
                 yield p
 
     def named_W(self):
         for n, p in self.named_parameters():
-            if 'arch' in n or 'normal_prob' in n:
+            if 'arch' in n:
                 pass
             else:
                 yield n, p
 
     def A(self):
-        for n, p in self.named_parameters():
-            if 'arch' in n or 'normal_prob' in n:
-                yield p
+        yield self.arch
 
 
 class InformerStack(nn.Module):

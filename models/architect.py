@@ -121,7 +121,7 @@ class Architect():
         elif self.args.rank == 0:
             dw_list = []
             for i in range(self.args.batch_size):
-                dw_list.append(torch.autograd.grad(unreduced_loss[i], self.net.W(), retain_graph=(i != self.args.batch_size-1)))
+                dw_list.append(torch.autograd.grad(unreduced_loss[i], self.net.W(), retain_graph=(i!=self.args.batch_size-1)))
         dist.broadcast(hessian, 1)
         da = torch.zeros_like(self.net.arch).to(self.device)
         if self.args.rank == 0:
@@ -141,11 +141,13 @@ class Architect():
             for i in range(self.args.batch_size):
                 for a, b in zip(dw_list[i], dw0):
                     da[indice[i]] += (a*b).sum()
+                    if (a*b).sum() == 0:
+                        print('DANGER 0101')
+                    print(indice[i])
 
             # update final gradient = dalpha - xi*hessian
             with torch.no_grad():
                 self.net.arch.grad = da * xi * xi
-                # self.net.arch_1.grad = da_1 * xi * xi
         return unreduced_loss.mean()
 
     def compute_hessian(self, dw, trn_data):
