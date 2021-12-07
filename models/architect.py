@@ -144,11 +144,11 @@ class Architect():
                     da[indice[i]] += (a*b).sum()
                     if (a*b).sum() == 0:
                         print('DANGER 0101')
-                    print(indice[i], i)
 
             # update final gradient = dalpha - xi*hessian
             with torch.no_grad():
                 self.net.arch.grad = da * xi * xi
+            print(self.net.arch[indice].grad)
         return unreduced_loss.mean()
 
     def compute_hessian(self, dw, trn_data):
