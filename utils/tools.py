@@ -24,6 +24,7 @@ class MyDefiniteSampler(Sampler):
 
     def __iter__(self):
         shuffle(self.indice)
+        print("shuffling", self.indice[:200])
         if self.device is not None:
             tensor_indices = torch.tensor(self.indice).to(self.device)
             dist.broadcast(tensor_indices, 0)
