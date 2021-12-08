@@ -12,38 +12,50 @@ from models.model import Normal
 # after = model(means).squeeze().detach().numpy()
 # plt.plot(after)
 # plt.show()
-data = []
+# data = []
+#
+# for i in range(8):
+#     data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/383343/0/arch{}.npy'.format(i))))
+#
+# for i in range(8):
+#     plt.scatter(np.arange(data[i].shape[0]), data[i], s=0.5)
+#     plt.show()
+class Fourrier(torch.nn.Module):
+    def __init__(self, train_length):
+        super().__init__()
+        self.train_length = train_length
+        self.nparam = self.train_length//50
+        self.sin = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
+        self.cos = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
 
-for i in range(8):
-    data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/383343/0/arch{}.npy'.format(i))))
+    def forward(self):
+        x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam) * 3.1415 / self.train_length
+        x = x * torch.arange(self.nparam)[None, :].float()
+        sin = torch.sin(x) * self.sin
+        cos = torch.cos(x) * self.cos
 
-for i in range(8):
-    plt.scatter(np.arange(data[i].shape[0]), data[i], s=0.5)
+        return torch.sigmoid((sin + cos).sum(-1))[:, None, None] * 2
+
+
+def get_fourrier(train_length):
+    f = Fourrier(train_length)
+    r = f().detach().numpy()
+    plt.plot(r)
     plt.show()
-# class Fourrier(torch.nn.Module):
-#     def __init__(self):
-#         super().__init__()
-#         self.sin = nn.Parameter(1 / torch.arange(1, 51).unsqueeze(0)/3)
-#         self.cos = nn.Parameter(1 / torch.arange(1, 51).unsqueeze(0)/3)
-#
-#     def forward(self):
-#         x = torch.arange(1000)[:, None].expand(1000, 50) * 3.1415 / 1000
-#         x = x * torch.arange(50)[None, :].float()
-#         sin = torch.sin(x) * self.sin
-#         cos = torch.cos(x) * self.cos
-#
-#         return (sin + cos).sum(-1)
-#
-#
-# f = Fourrier()
-# f.train()
-# optim = torch.optim.SGD(f.parameters(), 0.1)
-# target = torch.ones(1000) * 0.5
-# for i in range(10):
-#     optim.zero_grad()
-#     loss = mse_loss(f(), target)
-#     loss.backward()
-#     optim.step()
-# r = f().detach().numpy()
-# plt.plot(r)
-# plt.show()
+    f.train()
+    optim = torch.optim.SGD(f.parameters(), 0.1)
+    target = torch.ones(train_length)
+    for i in range(200):
+        optim.zero_grad()
+        loss = mse_loss(f(), target)
+        loss.backward()
+        optim.step()
+        print(loss)
+    r = f().detach().numpy()
+    print(f.sin, f.cos)
+    plt.plot(r)
+    plt.show()
+    print(f().shape)
+    return f
+
+f = get_fourrier(2000)

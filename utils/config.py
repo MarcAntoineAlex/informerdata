@@ -114,6 +114,7 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--max_hessian_grad_norm', type=float, default=1)
         parser.add_argument('--ratio', type=float, default=0.5)
         parser.add_argument('--sigmoid', type=float, default=2)
+        parser.add_argument('--fourrier', action='store_true')
 
         args = parser.parse_args()
 

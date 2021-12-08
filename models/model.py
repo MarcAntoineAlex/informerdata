@@ -15,7 +15,7 @@ class Informer(nn.Module):
                 factor=5, d_model=512, n_heads=8, e_layers=3, d_layers=2, d_ff=512,
                 dropout=0.0, attn='prob', embed='fixed', freq='h', activation='gelu',
                 output_attention = False, distil=True, mix=True,
-                device=torch.device('cuda:0'), train_length=8531):
+                device=torch.device('cuda:0'), train_length=8531, fourrier = False):
         super(Informer, self).__init__()
         self.pred_len = out_len
         self.attn = attn
@@ -67,6 +67,9 @@ class Informer(nn.Module):
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
         self.arch = torch.nn.Parameter(torch.zeros(train_length, 1, 1))
+        if fourrier:
+            self.arch = get_fourrier(train_length)
+
         # self.normal_prob = Normal(device, train_length // 100, train_length)
         # end = train_length - train_length % 100
         # self.arch = nn.Parameter(torch.linspace(0, end, train_length//100))
@@ -103,7 +106,11 @@ class Informer(nn.Module):
                 yield n, p
 
     def A(self):
-        yield self.arch
+        for n, p in self.named_parameters():
+            if 'arch' in n:
+                yield p
+            else:
+                pass
 
 
 class InformerStack(nn.Module):
@@ -182,6 +189,36 @@ class InformerStack(nn.Module):
             return dec_out[:, -self.pred_len:, :], attns
         else:
             return dec_out[:, -self.pred_len:, :]  # [B, L, D]
+
+class Fourrier(torch.nn.Module):
+    def __init__(self, train_length):
+        super().__init__()
+        self.train_length = train_length
+        self.nparam = self.train_length//50
+        self.sin = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
+        self.cos = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
+
+    def forward(self):
+        x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam) * 3.1415 / self.train_length
+        x = x * torch.arange(self.nparam)[None, :].float()
+        sin = torch.sin(x) * self.sin
+        cos = torch.cos(x) * self.cos
+
+        return torch.sigmoid((sin + cos).sum(-1))[:, None, None] * 2
+
+
+def get_fourrier(train_length):
+    f = Fourrier(train_length)
+    f.train()
+    optim = torch.optim.SGD(f.parameters(), 0.1)
+    target = torch.ones(train_length)
+    for i in range(200):
+        optim.zero_grad()
+        loss = torch.nn.functional.mse_loss(f(), target)
+        loss.backward()
+        optim.step()
+    print(f())
+    return f
 
 
 class Normal(nn.Module):

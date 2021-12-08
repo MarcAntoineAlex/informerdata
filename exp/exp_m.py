@@ -58,7 +58,8 @@ class Exp_M_Informer(Exp_Basic):
                 self.args.distil,
                 self.args.mix,
                 self.device,
-                train_length
+                train_length,
+                self.args.fourrier
             ).float()
         else:
             raise NotImplementedError
@@ -341,8 +342,11 @@ class Exp_M_Informer(Exp_Basic):
         return outputs, batch_y
 
     def critere(self, pred, true, indice, reduction='mean'):
-        weights = self.model.arch[indice, :, :]
-        weights = sigmoid(weights) * self.args.sigmoid
+        if self.args.fourrier:
+            weights = self.model.arch()[indice, :, :]
+        else:
+            weights = self.model.arch[indice, :, :]
+            weights = sigmoid(weights) * self.args.sigmoid
         # weights = self.model.normal_prob(self.model.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)

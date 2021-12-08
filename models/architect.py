@@ -32,9 +32,12 @@ class Architect():
             self.inverse_transform = inverse_transform
 
     def critere(self, pred, true, indice, reduction='mean'):
-        weights = self.net.arch[indice, :, :]
-        # weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
-        weights = sigmoid(weights) * self.args.sigmoid
+        if self.args.fourrier:
+            weights = self.net.arch()[indice, :, :]
+        else:
+            weights = self.net.arch[indice, :, :]
+            # weights = self.net.normal_prob(self.net.arch)[indice, :, :]
+            weights = sigmoid(weights) * self.args.sigmoid
         if reduction != 'mean':
             crit = nn.MSELoss(reduction=reduction)
             return (crit(pred, true) * weights).mean(dim=(-1, -2))
@@ -129,25 +132,28 @@ class Architect():
             assert pred.shape == hessian.shape
             pseudo_loss = (pred * hessian).sum()
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
-            # weights = self.net.normal_prob(self.net.arch)[indice[data_count:data_count + pred.shape[0]], :, :]
-            # d_weights = torch.ones(self.args.batch_size, requires_grad=False)[:, None, None].to(self.device)
-            # for i in range(self.args.batch_size):
-            #     for a, b in zip(dw_list[i], dw0):
-            #         assert a.shape == b.shape
-            #         d_weights[i] += (a*b).sum()
-            # aux_loss = (d_weights * weights).sum()
-            # da = torch.autograd.grad(aux_loss, self.net.arch, retain_graph=True)[0]
-            # da_1 = torch.autograd.grad(aux_loss, self.net.arch_1)[0]
-            for i in range(self.args.batch_size):
-                for a, b in zip(dw_list[i], dw0):
-                    da[indice[i]] += (a*b).sum()
-                    if (a*b).sum() == 0:
-                        print('DANGER 0101')
+            if self.args.fourrier:
+                weights = self.net.arch()[indice, :, :]
+                d_weights = torch.ones(self.args.batch_size, requires_grad=False)[:, None, None].to(self.device)
+                for i in range(self.args.batch_size):
+                    for a, b in zip(dw_list[i], dw0):
+                        assert a.shape == b.shape
+                        d_weights[i] += (a*b).sum()
+                aux_loss = (d_weights * weights).sum()
+                da = torch.autograd.grad(aux_loss, self.net.A())
+                with torch.no_grad():
+                    for a, d in zip(self.net.A(), da):
+                        a.grad = da * xi * xi
+                        print(a.grad)
+            else:
+                for i in range(self.args.batch_size):
+                    for a, b in zip(dw_list[i], dw0):
+                        da[indice[i]] += (a*b).sum()
 
-            # update final gradient = dalpha - xi*hessian
-            with torch.no_grad():
-                self.net.arch.grad = da * xi * xi
-            # print(self.net.arch.grad[indice], da[indice])
+                # update final gradient = dalpha - xi*hessian
+                with torch.no_grad():
+                    self.net.arch.grad = da * xi * xi
+                # print(self.net.arch.grad[indice], da[indice])
         return unreduced_loss.mean()
 
     def compute_hessian(self, dw, trn_data):
