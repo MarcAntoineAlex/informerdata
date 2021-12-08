@@ -66,9 +66,10 @@ class Informer(nn.Module):
         # self.end_conv1 = nn.Conv1d(in_channels=label_len+out_len, out_channels=out_len, kernel_size=1, bias=True)
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
-        self.arch = torch.nn.Parameter(torch.zeros(train_length, 1, 1))
         if fourrier:
             self.arch = get_fourrier(train_length)
+        else:
+            self.arch = torch.nn.Parameter(torch.zeros(train_length, 1, 1))
 
         # self.normal_prob = Normal(device, train_length // 100, train_length)
         # end = train_length - train_length % 100
