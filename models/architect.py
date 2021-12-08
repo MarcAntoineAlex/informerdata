@@ -147,7 +147,7 @@ class Architect():
             # update final gradient = dalpha - xi*hessian
             with torch.no_grad():
                 self.net.arch.grad = da * xi * xi
-            print(self.net.arch.grad[indice], da[indice])
+            # print(self.net.arch.grad[indice], da[indice])
         return unreduced_loss.mean()
 
     def compute_hessian(self, dw, trn_data):

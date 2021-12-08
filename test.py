@@ -14,11 +14,11 @@ from models.model import Normal
 # plt.show()
 data = []
 
-for i in range(3, 4):
-    data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/arch{}.npy'.format(i))))
+for i in range(8):
+    data.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/383343/0/arch{}.npy'.format(i))))
 
-for i in range(1):
-    plt.scatter(np.arange(data[i].shape[0]), data[i])
+for i in range(8):
+    plt.scatter(np.arange(data[i].shape[0]), data[i], s=0.5)
     plt.show()
 # class Fourrier(torch.nn.Module):
 #     def __init__(self):
