@@ -193,7 +193,7 @@ class Exp_M_Informer(Exp_Basic):
                     if self.args.fourrier:
                         print("data_count ", data_count, self.model.arch.cos.grad[:10].squeeze())
                     else:
-                        print("data_count ", data_count, self.model.arch.grad[:10].squeeze())
+                        print("data_count ", data_count, self.model.arch.grad[:100].squeeze(), self.model.arch[:100].squeeze())
                 A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
