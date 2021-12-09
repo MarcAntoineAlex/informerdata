@@ -131,8 +131,7 @@ class Exp_M_Informer(Exp_Basic):
 
     def _select_optimizer(self):
         W_optim = optim.Adam(self.model.W(), 0.0001, weight_decay=self.args.w_weight_decay)
-        A_optim = optim.Adam(self.model.A(), self.args.A_lr, betas=(0.5, 0.999),
-                             weight_decay=0)
+        A_optim = optim.Adam(self.model.A(), self.args.A_lr, weight_decay=0)
         return W_optim, A_optim
 
     def _select_criterion(self):
@@ -193,15 +192,16 @@ class Exp_M_Informer(Exp_Basic):
                     if self.args.fourrier:
                         print("data_count ", data_count, self.model.arch.cos.grad[:10].squeeze())
                     else:
-                        print("data_count ", data_count, self.model.arch.grad[:100].squeeze(), self.model.arch[:100].squeeze())
+                        print("data_count ", data_count, self.model.arch.grad[:10].squeeze(), self.model.arch[:100].squeeze())
                 A_optim.step()
-                print(self.model.arch[:100].squeeze())
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
                 if self.args.rank == 0:
                     pred, true = self._process_one_batch(trn_data)
                     loss = self.critere(pred, true, indice)
                     loss.backward()
+                    for p in self.model.W():
+                        print(p.grad)
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
@@ -215,7 +215,6 @@ class Exp_M_Informer(Exp_Basic):
                         loss.backward()
                         W_optim.step()
                 train_loss.append(loss.item())
-                print(self.model.arch[:100].squeeze())
 
                 if (i + 1) % 50 == 0:
                     logger.info("\tR{0} iters: {1}, epoch: {2} | loss: {3:.7f}".format(self.args.rank, i + 1, epoch + 1, loss.item()))
