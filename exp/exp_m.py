@@ -190,6 +190,7 @@ class Exp_M_Informer(Exp_Basic):
                 print("data_count ", data_count, self.model.arch.grad[:10].squeeze())
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
                                                    W_optim, indice)
+                print("data_count ", data_count, self.model.arch.grad[:10].squeeze())
                 A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
