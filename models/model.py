@@ -67,7 +67,7 @@ class Informer(nn.Module):
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
         if fourrier:
-            self.arch = get_fourrier(train_length)
+            self.arch = get_fourrier(train_length, self.device)
         else:
             self.arch = torch.nn.Parameter(torch.zeros(train_length, 1, 1))
 
@@ -191,25 +191,27 @@ class InformerStack(nn.Module):
         else:
             return dec_out[:, -self.pred_len:, :]  # [B, L, D]
 
+
 class Fourrier(torch.nn.Module):
-    def __init__(self, train_length):
+    def __init__(self, train_length, device=None):
         super().__init__()
+        self.device = device
         self.train_length = train_length
         self.nparam = self.train_length//50
         self.sin = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
         self.cos = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
 
     def forward(self):
-        x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam) * 3.1415 / self.train_length
-        x = x * torch.arange(self.nparam)[None, :].float()
+        x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam).to(self.device) * 3.1415 / self.train_length
+        x = x * torch.arange(self.nparam)[None, :].float().to(self.device)
         sin = torch.sin(x) * self.sin
         cos = torch.cos(x) * self.cos
 
         return torch.sigmoid((sin + cos).sum(-1))[:, None, None] * 2
 
 
-def get_fourrier(train_length):
-    f = Fourrier(train_length)
+def get_fourrier(train_length, device):
+    f = Fourrier(train_length, device)
     f.train()
     optim = torch.optim.SGD(f.parameters(), 0.1)
     target = torch.ones(train_length)
@@ -219,7 +221,7 @@ def get_fourrier(train_length):
         loss.backward()
         optim.step()
     print(f())
-    return f.cuda()
+    return f
 
 
 class Normal(nn.Module):
