@@ -211,10 +211,10 @@ class Fourrier(torch.nn.Module):
 
 
 def get_fourrier(train_length, device):
-    f = Fourrier(train_length, device)
+    f = Fourrier(train_length, device).to(device)
     f.train()
     optim = torch.optim.SGD(f.parameters(), 0.1)
-    target = torch.ones(train_length)
+    target = torch.ones(train_length).to(device)
     for i in range(200):
         optim.zero_grad()
         loss = torch.nn.functional.mse_loss(f(), target)
