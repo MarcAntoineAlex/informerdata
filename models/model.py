@@ -219,7 +219,7 @@ def get_fourrier(train_length):
         loss.backward()
         optim.step()
     print(f())
-    return f
+    return f.cuda()
 
 
 class Normal(nn.Module):
