@@ -5,7 +5,6 @@ from models.architect import Architect
 
 from utils.tools import EarlyStopping, adjust_learning_rate, AverageMeter, MyDefiniteSampler
 from utils.metrics import metric
-import random
 import numpy as np
 
 import torch
@@ -188,11 +187,11 @@ class Exp_M_Informer(Exp_Basic):
                 A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
                                                    W_optim, indice)
-                if self.args.rank == 0:
-                    if self.args.fourrier:
-                        print("data_count ", data_count, self.model.arch.cos.grad[:10].squeeze())
-                    else:
-                        print("data_count ", data_count, self.model.arch.grad[:10].squeeze(), self.model.arch[:100].squeeze())
+                # if self.args.rank == 0:
+                #     if self.args.fourrier:
+                #         print("data_count ", data_count, self.model.arch.cos.grad[:10].squeeze())
+                #     else:
+                #         print("data_count ", data_count, self.model.arch.grad[:10].squeeze(), self.model.arch[:100].squeeze())
                 A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
@@ -200,8 +199,6 @@ class Exp_M_Informer(Exp_Basic):
                     pred, true = self._process_one_batch(trn_data)
                     loss = self.critere(pred, true, indice)
                     loss.backward()
-                    for p in self.model.W():
-                        print(p.grad)
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
@@ -225,6 +222,10 @@ class Exp_M_Informer(Exp_Basic):
                     time_now = time.time()
 
                 data_count += self.args.batch_size
+
+            if not self.args.fourrier:
+                with torch.no_grad():
+                    self.model.arch *= (1-self.args.A_weight_decay)
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
