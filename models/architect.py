@@ -126,7 +126,6 @@ class Architect():
             for i in range(self.args.batch_size):
                 dw_list.append(torch.autograd.grad(unreduced_loss[i], self.net.W(), retain_graph=(i!=self.args.batch_size-1)))
         dist.broadcast(hessian, 1)
-        da = torch.zeros_like(self.net.arch).to(self.device)
         if self.args.rank == 0:
             pred, true = self._process_one_batch(trn_data, self.v_net)
             assert pred.shape == hessian.shape
@@ -134,7 +133,7 @@ class Architect():
             dw0 = torch.autograd.grad(pseudo_loss, self.v_net.W())
             if self.args.fourrier:
                 weights = self.net.arch()[indice, :, :]
-                d_weights = torch.ones(self.args.batch_size, requires_grad=False)[:, None, None].to(self.device)
+                d_weights = torch.zeros(self.args.batch_size, requires_grad=False)[:, None, None].to(self.device)
                 for i in range(self.args.batch_size):
                     for a, b in zip(dw_list[i], dw0):
                         assert a.shape == b.shape
@@ -146,6 +145,7 @@ class Architect():
                         a.grad = da * xi * xi
                         print(a.grad)
             else:
+                da = torch.zeros_like(self.net.arch).to(self.device)
                 for i in range(self.args.batch_size):
                     for a, b in zip(dw_list[i], dw0):
                         da[indice[i]] += (a*b).sum()
