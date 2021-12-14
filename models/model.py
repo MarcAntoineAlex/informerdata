@@ -193,17 +193,23 @@ class InformerStack(nn.Module):
 
 
 class Fourrier(torch.nn.Module):
-    def __init__(self, train_length, device=None):
+    def __init__(self, train_length, device=None, sin=None, cos=None):
         super().__init__()
         self.device = device
         self.train_length = train_length
         self.nparam = self.train_length//50
-        self.sin = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
-        self.cos = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
+        if sin is not None:
+            self.sin = nn.Parameter(sin)
+            self.cos = nn.Parameter(cos)
+        else:
+            self.sin = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
+            self.cos = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
 
     def forward(self):
-        x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam).to(self.device) * 3.1415 / self.train_length
-        x = x * torch.arange(self.nparam)[None, :].float().to(self.device)
+        x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam) * 3.1415 / self.train_length
+        x = x * torch.arange(self.nparam)[None, :].float()
+        if self.device is not None:
+            x = x.to(self.device)
         sin = torch.sin(x) * self.sin
         cos = torch.cos(x) * self.cos
 
@@ -214,7 +220,7 @@ def get_fourrier(train_length, device):
     f = Fourrier(train_length, device).to(device)
     f.train()
     optim = torch.optim.SGD(f.parameters(), 0.1)
-    target = torch.ones(train_length).to(device)
+    target = torch.ones(train_length).to(device) * 0.2
     for i in range(200):
         optim.zero_grad()
         loss = torch.nn.functional.mse_loss(f(), target)
