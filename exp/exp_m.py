@@ -130,7 +130,7 @@ class Exp_M_Informer(Exp_Basic):
 
     def _select_optimizer(self):
         W_optim = optim.Adam(self.model.W(), 0.0001, weight_decay=self.args.w_weight_decay)
-        A_optim = optim.Adam(self.model.A(), self.args.A_lr, weight_decay=0)
+        A_optim = optim.SGD(self.model.A(), self.args.A_lr, weight_decay=0)
         return W_optim, A_optim
 
     def _select_criterion(self):
