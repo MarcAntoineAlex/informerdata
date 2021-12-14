@@ -16,16 +16,16 @@ from models.model import Fourrier
 cos = []
 sin = []
 for i in range(10):
-    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/385028/0/cos{}.npy'.format(i))))
-    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/385028/0/sin{}.npy'.format(i))))
+    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/386768/0/cos{}.npy'.format(i))))
+    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/386768/0/sin{}.npy'.format(i))))
 
 f = Fourrier(8521)
 for i in range(10):
     print(sin[i])
     f = Fourrier(8521, None, sin[i], cos[i])
     res = f().detach().squeeze().numpy()
-    # plt.plot(res)
-    # print(res)
-    # plt.show()
+    plt.plot(res[:100])
+    print(res)
+    plt.show()
 
 

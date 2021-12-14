@@ -142,7 +142,7 @@ class Architect():
                 da = torch.autograd.grad(aux_loss, self.net.A())
                 with torch.no_grad():
                     for a, d in zip(self.net.A(), da):
-                        a.grad = d * xi
+                        a.grad = d * xi * xi
             else:
                 da = torch.zeros_like(self.net.arch).to(self.device)
                 for i in range(self.args.batch_size):
