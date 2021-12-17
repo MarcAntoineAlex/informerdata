@@ -213,7 +213,7 @@ class Fourrier(torch.nn.Module):
         sin = torch.sin(x) * self.sin
         cos = torch.cos(x) * self.cos
 
-        return torch.sigmoid((sin + cos).sum(-1))[:, None, None] * 2
+        return torch.sigmoid((sin + cos).sum(-1))[:, None, None] * self.args.sigmoid
 
 
 def get_fourrier(train_length, device):
@@ -221,11 +221,12 @@ def get_fourrier(train_length, device):
     f.train()
     optim = torch.optim.SGD(f.parameters(), 0.1)
     target = torch.ones(train_length).to(device) * 0.2
-    for i in range(200):
+    for i in range(1000):
         optim.zero_grad()
         loss = torch.nn.functional.mse_loss(f(), target)
         loss.backward()
         optim.step()
+    print('something')
     print(f())
     return f
 
