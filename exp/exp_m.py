@@ -241,7 +241,7 @@ class Exp_M_Informer(Exp_Basic):
                     # np.save(path + '/' + 'arch_factor{}.npy'.format(epoch), self.model.arch_1.detach().squeeze().cpu().numpy())
             elif self.args.rank == 0 and ii == 0:
                 logger.info("R{} cos{}, sin{}".format(self.args.rank, self.model.arch.cos, self.model.arch.sin))
-                np.save(path + '/' + 'cos{}.npy'.format(epoch), self.model.arch.sin.detach().squeeze().cpu().numpy())
+                np.save(path + '/' + 'cos{}.npy'.format(epoch), self.model.arch.cos.detach().squeeze().cpu().numpy())
                 np.save(path + '/' + 'sin{}.npy'.format(epoch), self.model.arch.sin.detach().squeeze().cpu().numpy())
             early_stopping(vali_loss, self.model, path)
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])

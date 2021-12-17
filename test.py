@@ -6,26 +6,25 @@ from torch.nn.functional import mse_loss
 from torch.fft import fft, ifft, irfft
 from models.model import Fourrier
 
-
-# model = Normal(num=30, length=3000)
-# means = torch.linspace(0, 3000, 30, requires_grad=True)
-# after = model(means).squeeze().detach().numpy()
-# plt.plot(after)
-# plt.show()
-
 cos = []
 sin = []
 for i in range(10):
-    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/386768/0/cos{}.npy'.format(i))))
-    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/386768/0/sin{}.npy'.format(i))))
+    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/387240/0/cos{}.npy'.format(i))))
+    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/387240/0/sin{}.npy'.format(i))))
 
-f = Fourrier(8521)
 for i in range(10):
-    print(sin[i])
+    print(cos[i][:20])
     f = Fourrier(8521, None, sin[i], cos[i])
     res = f().detach().squeeze().numpy()
-    plt.plot(res[:100])
-    print(res)
+    plt.plot(res)
     plt.show()
+
+# x = np.linspace(0, 5, 1000)
+# y = 380 * (48.7 * (2288.2 + 33.54 * np.power(x, 2)) ** 0.5 - x * 340) / 10000
+#
+# plt.plot(x, y)
+# plt.xlabel("Velocity/mach")
+# plt.ylabel("Thrust/ton")
+# plt.show()
 
 
