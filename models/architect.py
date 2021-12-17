@@ -140,7 +140,6 @@ class Architect():
                         d_weights[i] += (a*b).sum()
                 aux_loss = (d_weights * weights).sum()
                 da = torch.autograd.grad(aux_loss, self.net.A())
-                print(da)
                 with torch.no_grad():
                     for a, d in zip(self.net.A(), da):
                         a.grad = d * xi * xi

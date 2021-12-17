@@ -9,8 +9,8 @@ from models.model import Fourrier
 cos = []
 sin = []
 for i in range(10):
-    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/387240/0/cos{}.npy'.format(i))))
-    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/387240/0/sin{}.npy'.format(i))))
+    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/387890/0/cos{}.npy'.format(i))))
+    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/387890/0/sin{}.npy'.format(i))))
 
 for i in range(10):
     print(cos[i][:20])
@@ -19,12 +19,26 @@ for i in range(10):
     plt.plot(res)
     plt.show()
 
-# x = np.linspace(0, 5, 1000)
-# y = 380 * (48.7 * (2288.2 + 33.54 * np.power(x, 2)) ** 0.5 - x * 340) / 10000
+# Ma = np.linspace(0, 5, 1000)
+# Mair = 320 + 16 * Ma
+# F = 6740.2 + 72.12 * np.power(Ma, 2) - 512847.4 / Mair
+# F = np.power(F * 1000, 0.5)
+# F = 33/32 * Mair * F
+# print(F)
+# print(Mair * Ma * 340)
+# F = F - Mair * Ma * 340
 #
-# plt.plot(x, y)
+# P = F * Ma * 340
+# Q = 143000000 * Mair / 32
+#
+# efficiency = P / Q
+#
+# plt.plot(Ma, F/10000)
 # plt.xlabel("Velocity/mach")
 # plt.ylabel("Thrust/ton")
+# plt.show()
+#
+# plt.plot(Ma, efficiency)
 # plt.show()
 
 
