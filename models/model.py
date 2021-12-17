@@ -15,7 +15,7 @@ class Informer(nn.Module):
                 factor=5, d_model=512, n_heads=8, e_layers=3, d_layers=2, d_ff=512,
                 dropout=0.0, attn='prob', embed='fixed', freq='h', activation='gelu',
                 output_attention = False, distil=True, mix=True,
-                device=torch.device('cuda:0'), train_length=8531, fourrier = False):
+                device=torch.device('cuda:0'), train_length=8531, fourrier=False):
         super(Informer, self).__init__()
         self.pred_len = out_len
         self.attn = attn
@@ -213,7 +213,7 @@ class Fourrier(torch.nn.Module):
         sin = torch.sin(x) * self.sin
         cos = torch.cos(x) * self.cos
 
-        return torch.sigmoid((sin + cos).sum(-1))[:, None, None] * self.args.sigmoid
+        return ((sin + cos).sum(-1))[:, None, None]
 
 
 def get_fourrier(train_length, device):

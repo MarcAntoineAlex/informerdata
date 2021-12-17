@@ -34,6 +34,7 @@ class Architect():
     def critere(self, pred, true, indice, reduction='mean'):
         if self.args.fourrier:
             weights = self.net.arch()[indice, :, :]
+            weights = sigmoid(weights) * self.args.sigmoid
         else:
             weights = self.net.arch[indice, :, :]
             # weights = self.net.normal_prob(self.net.arch)[indice, :, :]
