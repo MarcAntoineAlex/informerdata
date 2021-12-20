@@ -227,9 +227,6 @@ class Exp_M_Informer(Exp_Basic):
             if not self.args.fourrier:
                 with torch.no_grad():
                     self.model.arch *= (1-self.args.A_weight_decay)
-            else:
-                with torch.no_grad():
-                    self.model.arch *= (1-self.args.A_weight_decay)
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
