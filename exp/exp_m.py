@@ -131,6 +131,8 @@ class Exp_M_Informer(Exp_Basic):
     def _select_optimizer(self):
         W_optim = optim.Adam(self.model.W(), 0.0001, weight_decay=self.args.w_weight_decay)
         A_optim = optim.Adam(self.model.A(), self.args.A_lr, weight_decay=0)
+        if self.args.fourrier:
+            A_optim = optim.Adam(self.model.A(), self.args.A_lr, weight_decay=self.args.A_weight_decay)
         return W_optim, A_optim
 
     def _select_criterion(self):
@@ -168,7 +170,7 @@ class Exp_M_Informer(Exp_Basic):
         if self.args.rank == 0 and ii == 0:
             logger.info("R{} cos{}, sin{}".format(self.args.rank, self.model.arch.cos, self.model.arch.sin))
             np.save(path + '/' + 'cos0.npy', self.model.arch.cos.detach().squeeze().cpu().numpy())
-            np.save(path + '/' + 'sin0.npy'.format(), self.model.arch.sin.detach().squeeze().cpu().numpy())
+            np.save(path + '/' + 'sin0.npy', self.model.arch.sin.detach().squeeze().cpu().numpy())
 
         for epoch in range(self.args.train_epochs):
             iter_count = 0
@@ -191,11 +193,6 @@ class Exp_M_Informer(Exp_Basic):
                 A_optim.zero_grad()
                 loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
                                                    W_optim, indice)
-                # if self.args.rank == 0:
-                #     if self.args.fourrier:
-                #         print("data_count ", data_count, self.model.arch.cos.grad[:10].squeeze())
-                #     else:
-                #         print("data_count ", data_count, self.model.arch.grad[:10].squeeze(), self.model.arch[:100].squeeze())
                 A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
@@ -230,6 +227,9 @@ class Exp_M_Informer(Exp_Basic):
             if not self.args.fourrier:
                 with torch.no_grad():
                     self.model.arch *= (1-self.args.A_weight_decay)
+            else:
+                with torch.no_grad():
+                    self.model.arch *= (1-self.args.A_weight_decay)
 
             logger.info("R{} Epoch: {} cost time: {}".format(self.args.rank, epoch + 1, time.time() - epoch_time))
             train_loss = np.average(train_loss)
@@ -245,8 +245,8 @@ class Exp_M_Informer(Exp_Basic):
                     # np.save(path + '/' + 'arch_factor{}.npy'.format(epoch), self.model.arch_1.detach().squeeze().cpu().numpy())
             elif self.args.rank == 0 and ii == 0:
                 logger.info("R{} cos{}, sin{}".format(self.args.rank, self.model.arch.cos, self.model.arch.sin))
-                np.save(path + '/' + 'cos{}.npy'.format(epoch), self.model.arch.cos.detach().squeeze().cpu().numpy())
-                np.save(path + '/' + 'sin{}.npy'.format(epoch), self.model.arch.sin.detach().squeeze().cpu().numpy())
+                np.save(path + '/' + 'cos{}.npy'.format(epoch+1), self.model.arch.cos.detach().squeeze().cpu().numpy())
+                np.save(path + '/' + 'sin{}.npy'.format(epoch+1), self.model.arch.sin.detach().squeeze().cpu().numpy())
             early_stopping(vali_loss, self.model, path)
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
             flag = flag.to(self.device)
