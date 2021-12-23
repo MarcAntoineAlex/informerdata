@@ -167,7 +167,7 @@ class Exp_M_Informer(Exp_Basic):
 
         W_optim, A_optim = self._select_optimizer()
         criterion = self._select_criterion()
-        if self.args.rank == 0 and ii == 0:
+        if self.args.rank == 0 and ii == 0 and self.args.fourrier:
             logger.info("R{} cos{}, sin{}".format(self.args.rank, self.model.arch.cos, self.model.arch.sin))
             np.save(path + '/' + 'cos0.npy', self.model.arch.cos.detach().squeeze().cpu().numpy())
             np.save(path + '/' + 'sin0.npy', self.model.arch.sin.detach().squeeze().cpu().numpy())

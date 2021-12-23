@@ -2,20 +2,20 @@ from matplotlib import pyplot as plt
 import numpy as np
 import torch
 from torch import nn
-from torch.nn.functional import mse_loss, sigmoid
+from torch.nn.functional import mse_loss
 from torch.fft import fft, ifft, irfft
 from models.model import Fourrier
 
 cos = []
 sin = []
-for i in range(10):
-    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/388338/0/cos{}.npy'.format(i))))
-    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/388338/0/sin{}.npy'.format(i))))
+for i in range(5):
+    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/389797/0/cos{}.npy'.format(i))))
+    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/389797/0/sin{}.npy'.format(i))))
 
-for i in range(10):
+for i in range(5):
     print(cos[i][:20])
-    f = Fourrier(8497, None, sin[i], cos[i])
-    res = 2 * sigmoid(f()).detach().squeeze().numpy()
+    f = Fourrier(8377, None, sin[i], cos[i])
+    res = 2 * torch.sigmoid(f()).detach().squeeze().numpy()
     plt.plot(res)
     plt.show()
 
