@@ -8,15 +8,16 @@ from models.model import Fourrier
 
 cos = []
 sin = []
-for i in range(5):
-    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/389797/0/cos{}.npy'.format(i))))
-    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/389797/0/sin{}.npy'.format(i))))
+for i in range(6):
+    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/391576/0/cos{}.npy'.format(i))))
+    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/391576/0/sin{}.npy'.format(i))))
 
-for i in range(5):
+for i in range(6):
     print(cos[i][:20])
     f = Fourrier(8377, None, sin[i], cos[i])
     res = 2 * torch.sigmoid(f()).detach().squeeze().numpy()
     plt.plot(res)
+    plt.ylim(0, 2)
     plt.show()
 
 # Ma = np.linspace(0, 5, 1000)
