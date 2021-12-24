@@ -197,7 +197,7 @@ class Fourrier(torch.nn.Module):
         super().__init__()
         self.device = device
         self.train_length = train_length
-        self.nparam = self.train_length//20
+        self.nparam = self.train_length
         if sin is not None:
             self.sin = nn.Parameter(sin)
             self.cos = nn.Parameter(cos)

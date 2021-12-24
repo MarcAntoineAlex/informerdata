@@ -5,11 +5,11 @@ import torch
 from torch import nn
 from torch.nn.functional import mse_loss
 from torch.fft import fft, ifft, irfft
-from models.model import Fourrier
+from models.model import Fourrier, sigtemp
 
 cos = []
 sin = []
-job = "391572"
+job = "391924"
 num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//2
 for i in range(num):
     cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/cos{}.npy'.format(job, i))))
@@ -18,7 +18,7 @@ for i in range(num):
 for i in range(num):
     print(cos[i][:10])
     f = Fourrier(8377, None, sin[i], cos[i])
-    res = 2 * torch.sigmoid(f()).detach().squeeze().numpy()
+    res = 2 * sigtemp(f(), 0.5).detach().squeeze().numpy()
     plt.plot(res)
     plt.ylim(0, 2)
     plt.show()
