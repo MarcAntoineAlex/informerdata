@@ -1,6 +1,6 @@
 from data.data_loader import Dataset_ETT_hour, Dataset_ETT_minute, Dataset_Custom, Dataset_Pred
 from exp.exp_basic import Exp_Basic
-from models.model import Informer, InformerStack
+from models.model import Informer, InformerStack, sigtemp
 from models.architect import Architect
 
 from utils.tools import EarlyStopping, adjust_learning_rate, AverageMeter, MyDefiniteSampler
@@ -354,7 +354,7 @@ class Exp_M_Informer(Exp_Basic):
     def critere(self, pred, true, indice, reduction='mean'):
         if self.args.fourrier:
             weights = self.model.arch()[indice, :, :]
-            weights = sigmoid(weights) * self.args.sigmoid
+            weights = sigtemp(weights, 0.5) * self.args.sigmoid
         else:
             weights = self.model.arch[indice, :, :]
             weights = sigmoid(weights) * self.args.sigmoid

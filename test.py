@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import os
 import torch
 from torch import nn
 from torch.nn.functional import mse_loss
@@ -8,12 +9,14 @@ from models.model import Fourrier
 
 cos = []
 sin = []
-for i in range(6):
-    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/391576/0/cos{}.npy'.format(i))))
-    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/391576/0/sin{}.npy'.format(i))))
+job = "391572"
+num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//2
+for i in range(num):
+    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/cos{}.npy'.format(job, i))))
+    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/sin{}.npy'.format(job, i))))
 
-for i in range(6):
-    print(cos[i][:20])
+for i in range(num):
+    print(cos[i][:10])
     f = Fourrier(8377, None, sin[i], cos[i])
     res = 2 * torch.sigmoid(f()).detach().squeeze().numpy()
     plt.plot(res)

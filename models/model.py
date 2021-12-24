@@ -231,6 +231,10 @@ def get_fourrier(train_length, device):
     return f
 
 
+def sigtemp(x, temp):
+    return 1/(1+torch.exp(-temp * x))
+
+
 class Normal(nn.Module):
     def __init__(self, device=None, num=10, length=100):
         super(Normal, self).__init__()

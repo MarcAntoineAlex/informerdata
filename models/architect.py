@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.distributed as dist
 import utils.tools as tools
+from models.model import sigtemp
 from torch.nn.functional import sigmoid
 
 
@@ -34,7 +35,7 @@ class Architect():
     def critere(self, pred, true, indice, reduction='mean'):
         if self.args.fourrier:
             weights = self.net.arch()[indice, :, :]
-            weights = sigmoid(weights) * self.args.sigmoid
+            weights = sigtemp(weights, 0.5) * self.args.sigmoid
         else:
             weights = self.net.arch[indice, :, :]
             # weights = self.net.normal_prob(self.net.arch)[indice, :, :]
