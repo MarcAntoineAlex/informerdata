@@ -58,7 +58,7 @@ class Exp_M_Informer(Exp_Basic):
                 self.args.mix,
                 self.device,
                 train_length,
-                self.args.fourrier
+                self.args.fourrier, self.args
             ).float()
         else:
             raise NotImplementedError
