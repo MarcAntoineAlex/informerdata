@@ -67,7 +67,7 @@ class Informer(nn.Module):
         # self.end_conv2 = nn.Conv1d(in_channels=d_model, out_channels=c_out, kernel_size=1, bias=True)
         self.projection = nn.Linear(d_model, c_out, bias=True)
         if fourrier:
-            self.arch = get_fourrier(train_length, self.device)
+            self.arch = get_fourrier(train_length, self.args.fourier_divider, self.device)
         else:
             self.arch = torch.nn.Parameter(torch.zeros(train_length, 1, 1))
 
@@ -193,11 +193,11 @@ class InformerStack(nn.Module):
 
 
 class Fourrier(torch.nn.Module):
-    def __init__(self, train_length, device=None, sin=None, cos=None):
+    def __init__(self, train_length, fourier_divider, device=None, sin=None, cos=None):
         super().__init__()
         self.device = device
         self.train_length = train_length
-        self.nparam = self.train_length//args.fourier_devier
+        self.nparam = self.train_length//fourier_divider
         if sin is not None:
             self.sin = nn.Parameter(sin)
             self.cos = nn.Parameter(cos)
@@ -216,8 +216,8 @@ class Fourrier(torch.nn.Module):
         return ((sin + cos).sum(-1))[:, None, None]
 
 
-def get_fourrier(train_length, device):
-    f = Fourrier(train_length, device).to(device)
+def get_fourrier(train_length, fourier_divider, device):
+    f = Fourrier(train_length, fourier_divider, device).to(device)
     f.train()
     optim = torch.optim.SGD(f.parameters(), 0.1)
     target = torch.ones(train_length).to(device) * 0.2

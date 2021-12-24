@@ -115,7 +115,7 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--ratio', type=float, default=0.5)
         parser.add_argument('--sigmoid', type=float, default=2)
         parser.add_argument('--fourrier', action='store_true')
-        parser.add_argument('--fourier_devider', type=float, default=50)
+        parser.add_argument('--fourier_divider', type=float, default=50)
         parser.add_argument('--temp', type=float, default=1)
 
         args = parser.parse_args()
