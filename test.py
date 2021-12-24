@@ -7,21 +7,21 @@ from torch.nn.functional import mse_loss
 from torch.fft import fft, ifft, irfft
 from models.model import Fourrier, sigtemp
 
-cos = []
-sin = []
-job = "391924"
-num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//2
-for i in range(num):
-    cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/cos{}.npy'.format(job, i))))
-    sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/sin{}.npy'.format(job, i))))
-
-for i in range(num):
-    print(cos[i][:10])
-    f = Fourrier(8377, None, sin[i], cos[i])
-    res = 2 * sigtemp(f(), 0.5).detach().squeeze().numpy()
-    plt.plot(res)
-    plt.ylim(0, 2)
-    plt.show()
+# cos = []
+# sin = []
+# job = "391924"
+# num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//2
+# for i in range(num):
+#     cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/cos{}.npy'.format(job, i))))
+#     sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/sin{}.npy'.format(job, i))))
+#
+# for i in range(num):
+#     print(cos[i][:10])
+#     f = Fourrier(8377, None, sin[i], cos[i])
+#     res = 2 * sigtemp(f(), 0.5).detach().squeeze().numpy()
+#     plt.plot(res)
+#     plt.ylim(0, 2)
+#     plt.show()
 
 # Ma = np.linspace(0, 5, 1000)
 # Mair = 320 + 16 * Ma
@@ -57,3 +57,14 @@ for i in range(num):
 # print(F[600]/10000)
 # print(F[0], F[-1])
 # print(efficiency[600])
+
+class M(nn.Module):
+    def __init__(self):
+        super(M, self).__init__()
+        self.l = nn.Linear(3, 4)
+    def forward(self, x):
+        return self.l(x)
+
+m = M()
+x = torch.randn(3, 3)
+m.l = nn.Linear()

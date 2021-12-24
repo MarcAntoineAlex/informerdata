@@ -354,7 +354,7 @@ class Exp_M_Informer(Exp_Basic):
     def critere(self, pred, true, indice, reduction='mean'):
         if self.args.fourrier:
             weights = self.model.arch()[indice, :, :]
-            weights = sigtemp(weights, 0.5) * self.args.sigmoid
+            weights = sigtemp(weights, self.args.temp) * self.args.sigmoid
         else:
             weights = self.model.arch[indice, :, :]
             weights = sigmoid(weights) * self.args.sigmoid
