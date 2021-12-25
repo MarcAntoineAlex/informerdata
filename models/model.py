@@ -195,10 +195,10 @@ class InformerStack(nn.Module):
 
 class Fourrier(torch.nn.Module):
     def __init__(self, train_length, fourier_divider, device=None, sin=None, cos=None):
-        super().__init__()
+        super(Fourrier, self).__init__()
         self.device = device
-        self.train_length = train_length
-        self.nparam = self.train_length//fourier_divider
+        self.train_length = int(train_length)
+        self.nparam = self.train_length//int(fourier_divider)
         if sin is not None:
             self.sin = nn.Parameter(sin)
             self.cos = nn.Parameter(cos)
