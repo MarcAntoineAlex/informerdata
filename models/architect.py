@@ -154,7 +154,7 @@ class Architect():
                 with torch.no_grad():
                     self.net.arch.grad = da * xi * xi
                 # print(self.net.arch.grad[indice], da[indice])
-        return unreduced_loss.mean()
+        return unreduced_loss.mean(), da
 
     def compute_hessian(self, dw, trn_data):
         """

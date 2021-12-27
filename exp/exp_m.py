@@ -172,7 +172,11 @@ class Exp_M_Informer(Exp_Basic):
             np.save(path + '/' + 'cos0.npy', self.model.arch.cos.detach().squeeze().cpu().numpy())
             np.save(path + '/' + 'sin0.npy', self.model.arch.sin.detach().squeeze().cpu().numpy())
 
+        DA, DW = [], []
+
         for epoch in range(self.args.train_epochs):
+            DA.append([])
+            DW.append([])
             iter_count = 0
             data_count = 0
             train_loss = []
@@ -191,8 +195,12 @@ class Exp_M_Informer(Exp_Basic):
                 iter_count += 1
                 indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
                 A_optim.zero_grad()
-                loss = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
+
+                loss, da = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, W_optim.param_groups[0]['lr'],
                                                    W_optim, indice)
+                DA[-1].append(0)
+                for i, d in enumerate(da):
+                    DA[-1][-1] = (DA[-1][-1] * i + d.mean()) / (i+1)
                 A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
@@ -200,6 +208,11 @@ class Exp_M_Informer(Exp_Basic):
                     pred, true = self._process_one_batch(trn_data)
                     loss = self.critere(pred, true, indice)
                     loss.backward()
+
+                    DW[-1].append(0)
+                    for i, d in enumerate(self.model.W()):
+                        DW[-1][-1] = (DW[-1][-1] * i + d.grad.mean()) / (i + 1)
+
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
@@ -211,6 +224,8 @@ class Exp_M_Informer(Exp_Basic):
                         loss2 = criterion(own_pred, pred)
                         loss = loss1 * (1-self.args.lambda_par) + loss2 * self.args.lambda_par
                         loss.backward()
+
+
                         W_optim.step()
                 train_loss.append(loss.item())
 
@@ -244,6 +259,8 @@ class Exp_M_Informer(Exp_Basic):
                 logger.info("R{} cos{}, sin{}".format(self.args.rank, self.model.arch.cos, self.model.arch.sin))
                 np.save(path + '/' + 'cos{}.npy'.format(epoch+1), self.model.arch.cos.detach().squeeze().cpu().numpy())
                 np.save(path + '/' + 'sin{}.npy'.format(epoch+1), self.model.arch.sin.detach().squeeze().cpu().numpy())
+                np.save(path + '/' + 'da{}.npy'.format(epoch+1), np.array(DA[-1]))
+                np.save(path + '/' + 'dw{}.npy'.format(epoch+1), np.array(DW[-1]))
             early_stopping(vali_loss, self.model, path)
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
             flag = flag.to(self.device)
