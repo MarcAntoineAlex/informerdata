@@ -201,7 +201,7 @@ class Exp_M_Informer(Exp_Basic):
                 DA[-1].append(0)
                 if self.args.rank == 0:
                     for i, d in enumerate(da):
-                        DA[-1][-1] = (DA[-1][-1] * i + d.mean().item()) / (i+1)
+                        DA[-1][-1] = (DA[-1][-1] * i + d.mean().cpu().item()) / (i+1)
                 A_optim.step()
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
@@ -212,7 +212,7 @@ class Exp_M_Informer(Exp_Basic):
 
                     DW[-1].append(0)
                     for i, d in enumerate(self.model.W()):
-                        DW[-1][-1] = (DW[-1][-1] * i + d.grad.mean().item()) / (i + 1)
+                        DW[-1][-1] = (DW[-1][-1] * i + d.grad.mean().cpu().item()) / (i + 1)
 
                     W_optim.step()
                 for r in range(0, self.args.world_size - 1):
