@@ -9,8 +9,8 @@ from models.model import Fourrier, sigtemp
 
 cos = []
 sin = []
-job = "392557"
-num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//2
+job = "397001"
+num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//4
 for i in range(num):
     cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/cos{}.npy'.format(job, i))))
     sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/sin{}.npy'.format(job, i))))
@@ -21,7 +21,7 @@ for i in range(num):
     # res = 2 * sigtemp(f(), 0.5).detach().squeeze().numpy()
     res = f().detach().squeeze().numpy()
     plt.plot(res)
-    # plt.ylim(0, 2)
+    plt.ylim(0, 0.4)
     plt.show()
 
 # Ma = np.linspace(0, 5, 1000)
