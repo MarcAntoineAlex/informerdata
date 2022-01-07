@@ -123,7 +123,7 @@ def worker(gpu, ngpus_per_node, args_in):
             os.remove(args.path + '/{}/1_checkpoint.pth'.format(ii))
 
         torch.cuda.empty_cache()
-    mses, maes = torch.sort(torch.tensor(mses))[0][:-2].mean(), torch.sort(torch.tensor(maes))[0][:-2].mean()
+    mses, maes = torch.sort(torch.tensor(mses))[0][:-2].mean(), torch.sort(torch.tensor(maes))[0][:-1].mean()
 
     logger.info("R{} PRED {} FINAL RESULT {} {}".format(args.rank, args.pred_len, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
 

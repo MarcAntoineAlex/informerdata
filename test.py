@@ -9,19 +9,23 @@ from models.model import Fourrier, sigtemp
 
 cos = []
 sin = []
-job = "397001"
+da, dw = [], []
+job = "397665"
 num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//4
 for i in range(num):
     cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/cos{}.npy'.format(job, i))))
     sin.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/sin{}.npy'.format(job, i))))
+    da.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/da{}.npy'.format(job, i+1))))
+    dw.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/dw{}.npy'.format(job, i+1))))
 
 for i in range(num):
-    print(cos[i][:10])
+    print(da[i], dw[i])
     f = Fourrier(8375, 5, None, sin[i], cos[i])
-    # res = 2 * sigtemp(f(), 0.5).detach().squeeze().numpy()
-    res = f().detach().squeeze().numpy()
+    res = 2 * sigtemp(f(), 3).detach().squeeze().numpy()
+    # res = f().detach().squeeze().numpy()
     plt.plot(res)
-    plt.ylim(0, 0.4)
+    plt.show()
+    plt.plot(da[i])
     plt.show()
 
 # Ma = np.linspace(0, 5, 1000)

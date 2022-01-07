@@ -53,21 +53,23 @@ import numpy as np
 # sys.exit()
 
 #### FOURRIER
-# preprocessing
-data = pd.read_csv('/Users/marc-antoine/Documents/S7/物理实验/1230/1.txt', sep=';')
+# # preprocessing
+data = pd.read_csv('/Users/marc-antoine/Documents/S7/物理实验/gch/erhao.csv', sep=';')
 temps = data['Temps'].to_numpy()[20:]
 volt = data['EA1'].rolling(10).mean().to_numpy()[20:]
 volt -= volt.mean()
+# temps = np.concatenate((temps, np.linspace(80, 90, 10000)))
+# volt = np.concatenate((volt, volt[74980:79980]/2))
+# volt = np.concatenate((volt, volt[74980:79980]/2))
 font2 = {'weight': 'normal',
          'size': 14,
          }
-
 # I(t)
 plt.plot(temps, volt+0.6, linewidth=0.5, color='black')
 plt.xlabel('T/s', font2)
 plt.ylabel('U/V', font2)
 plt.grid()
-plt.xlim(0, 80)
+plt.xlim(0, 100)
 plt.ylim(0, 1.2)
 # plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(t).jpg')
 plt.show()
@@ -79,6 +81,7 @@ xnew -= xnew[np.argmax(volt)]
 # xnew -= xnew[0]
 # volt = volt[:np.argmax(volt)]
 plt.plot(xnew, volt, linewidth=0.5, color='black')
+print("DeltaM", xnew[-1]-xnew[0])
 
 plt.xlabel('{}/{}m'.format(chr(916), chr(956)), font2)
 plt.ylabel('U/V', font2)
@@ -100,7 +103,7 @@ x = np.reciprocal(after_x[80:500])*1000
 y = after_idct[80:500]
 m, M = np.argmin(y), np.argmax(y)
 x *= 580.5/584.5
-print(x[M])
+print(x[M], y[M])
 y[m] += 3
 y[m-1] += 3
 y = y * 2 * 2**0.5 * xnew[-1] / xnew.shape[0]**0.5
@@ -111,6 +114,10 @@ plt.xlabel('{}/nm'.format(chr(955)), font2)
 plt.ylabel('U/V', font2)
 # plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(lambda).jpg')
 plt.show()
+for i in range(len(x)-1):
+    if (y[i] - y[M]/2)*(y[i+1] - y[M]/2) <= 0:
+        print(x[i] + (x[i+1]-x[i])*(y[M]/2-y[i])/(y[i+1]-y[i]))
+print(x[3]-x[2])
 
 # I(sigma)
 x = np.reciprocal(x) * 1000
@@ -168,16 +175,23 @@ plt.show()
 # temps = data['Temps'].to_numpy()
 # temps = temps * 535/558
 # volt = data['EA1'].to_numpy()
-# plt.figure(figsize=(50, 20))
-# plt.tick_params(labelsize=29)
+# plt.figure(figsize=(40, 25))
+# plt.tick_params(labelsize=70)
 # plt.xlim(0, 12)
 # font2 = {'weight': 'normal',
-#          'size': 82,
+#          'size': 92,
 #          }
-# plt.xlabel('Time/s', font2)
-# plt.ylabel('Volt/V', font2)
+# plt.xlabel('T/s', font2)
+# plt.ylabel('U/V', font2)
 # plt.grid()
-# plt.plot(temps, volt, color='black')
+# bwith = 3
+# ax = plt.gca()
+# ax.spines['bottom'].set_linewidth(bwith)
+# ax.spines['left'].set_linewidth(bwith)
+# ax.spines['top'].set_linewidth(bwith)
+# ax.spines['right'].set_linewidth(bwith)
+#
+# plt.plot(temps, volt, color='black',linewidth=2.5)
 # plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/Nouveau dossier/speed.jpg')
 # plt.show()
 # print(temps.shape)
