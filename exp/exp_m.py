@@ -196,7 +196,7 @@ class Exp_M_Informer(Exp_Basic):
                 indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
                 A_optim.zero_grad()
 
-                loss, da = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, 1e-3,
+                loss, da = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, 1e-4,
                                                    W_optim, indice)
                 DA[-1].append(0)
                 if self.args.rank == 0:
