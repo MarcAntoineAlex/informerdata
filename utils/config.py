@@ -117,6 +117,7 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--fourrier', action='store_true')
         parser.add_argument('--fourier_divider', type=int, default=50)
         parser.add_argument('--temp', type=float, default=1)
+        parser.add_argument('--unrolled', type=float, default=1e-4)
 
         args = parser.parse_args()
 
