@@ -208,7 +208,7 @@ class Fourrier(torch.nn.Module):
 
     def forward(self):
         x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam) * 3.1415 / self.train_length
-        x = x * torch.arange(self.nparam)[None, :].float()
+        x = x * torch.arange(1, self.nparam+1)[None, :].float()
         if self.device is not None:
             x = x.to(self.device)
         sin = torch.sin(x) * self.sin
