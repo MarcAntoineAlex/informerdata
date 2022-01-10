@@ -194,7 +194,7 @@ class Exp_M_Informer(Exp_Basic):
                     trn_data[j], val_data[j] = trn_data[j].float().to(self.device), val_data[j].float().to(self.device)
                 iter_count += 1
                 indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
-                if True:
+                if False:
                     A_optim.zero_grad()
 
                     loss, da = self.arch.unrolled_backward(self.args, trn_data, val_data, trn_data, self.args.unrolled,
