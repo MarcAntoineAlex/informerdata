@@ -221,7 +221,7 @@ def get_fourrier(train_length, fourier_divider, device):
     f = Fourrier(train_length, fourier_divider, device).to(device)
     f.train()
     optim = torch.optim.SGD(f.parameters(), 0.1)
-    target = torch.ones(train_length).to(device) * 0.2
+    target = torch.ones(train_length).to(device) * 0.
     for i in range(2000):
         optim.zero_grad()
         loss = torch.nn.functional.mse_loss(f(), target)
