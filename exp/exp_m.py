@@ -267,7 +267,7 @@ class Exp_M_Informer(Exp_Basic):
             flag = flag.to(self.device)
             flags = [torch.tensor([1]).to(self.device), torch.tensor([1]).to(self.device)]
             dist.all_gather(flags, flag)
-            if flags[1].item() == 1 and flags[0].item() == 1:
+            if flags[0].item() == 1:
                 logger.info("Early stopping")
                 break
 
