@@ -262,7 +262,7 @@ class Exp_M_Informer(Exp_Basic):
                 np.save(path + '/' + 'sin{}.npy'.format(epoch+1), self.model.arch.sin.detach().squeeze().cpu().numpy())
                 np.save(path + '/' + 'da{}.npy'.format(epoch+1), np.array(DA[-1]))
                 np.save(path + '/' + 'dw{}.npy'.format(epoch+1), np.array(DW[-1]))
-            if epoch >= 3:
+            if epoch >= 2:
                 early_stopping(vali_loss, self.model, path)
             flag = torch.tensor([1]) if early_stopping.early_stop else torch.tensor([0])
             flag = flag.to(self.device)
