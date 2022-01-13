@@ -52,7 +52,7 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--model', type=str, default='informer',
                             help='model of experiment, options: [informer, informerstack, informerlight(TBD)]')
         parser.add_argument('--data', type=str, default='ETTh1', help='data')
-        parser.add_argument('--root_path', type=str, default='/home/LAB/gaoch/asdf/data/ETDataset/ETT-small/', help='root path of the data file')
+        parser.add_argument('--root_path', type=str, default='/home/LAB/gaoch/data/ETDataset/ETT-small/', help='root path of the data file')
         parser.add_argument('--data_path', type=str, default='ETTh1.csv', help='data file')
         parser.add_argument('--features', type=str, default='M',
                             help='forecasting task, options:[M, S, MS]; M:multivariate predict multivariate, S:univariate predict univariate, MS:multivariate predict univariate')
