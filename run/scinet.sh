@@ -28,23 +28,23 @@ export MKL_THREADING_LAYER=GNU
 export CUDA_HOME=/usr/local/cuda-10.2
 # sugon does not support infiniband
 srun python main.py --data ETTh1 --features M  --seq_len 48 --label_len 24 --pred_len 24 --hidden-size 4 --stacks 1 \
---levels 3 --lr 3e-3 --batch_size 8 --dropout 0.5 --model SCINet --train_eposhs 100 patience 5 --model_name etth1_M_I48_O24_lr3e-3_bs8_dp0.5_h4_s1l3
+--levels 3 --lr 3e-3 --batch_size 8 --dropout 0.5 --model SCINet --train_eposhs 100 --patience 5 --model_name etth1_M_I48_O24_lr3e-3_bs8_dp0.5_h4_s1l3
 srun python main.py --data ETTh1 --features M  --seq_len 96 --label_len 48 --pred_len 48 --hidden-size 4 --stacks 1 \
---levels 3 --lr 0.009 --batch_size 16 --dropout 0.25 --model SCINet --train_eposhs 100 patience 5 --model_name etth1_M_I96_O48_lr0.009_bs16_dp0.25_h4_s1l3
+--levels 3 --lr 0.009 --batch_size 16 --dropout 0.25 --model SCINet --train_eposhs 100 --patience 5 --model_name etth1_M_I96_O48_lr0.009_bs16_dp0.25_h4_s1l3
 srun python main.py --data ETTh1 --features M  --seq_len 336 --label_len 168 --pred_len 168 --hidden-size 4 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 3 --lr 5e-4 --batch_size 32 --dropout 0.5 --model_name etth1_M_I336_O168_lr5e-4_bs32_dp0.5_h4_s1l3
+--model SCINet --train_eposhs 100 --patience 5 --levels 3 --lr 5e-4 --batch_size 32 --dropout 0.5 --model_name etth1_M_I336_O168_lr5e-4_bs32_dp0.5_h4_s1l3
 srun python main.py --data ETTh1 --features M  --seq_len 336 --label_len 336 --pred_len 336 --hidden-size 1 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 4 --lr 1e-4 --batch_size 512 --dropout 0.5 --model_name etth1_M_I336_O336_lr1e-4_bs512_dp0.5_h1_s1l4
+--model SCINet --train_eposhs 100 --patience 5 --levels 4 --lr 1e-4 --batch_size 512 --dropout 0.5 --model_name etth1_M_I336_O336_lr1e-4_bs512_dp0.5_h1_s1l4
 srun python main.py --data ETTh1 --features M  --seq_len 736 --label_len 720 --pred_len 720 --hidden-size 1 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 5 --lr 5e-5 --batch_size 256 --dropout 0.5 --model_name etth1_M_I736_O720_lr5e-5_bs256_dp0.5_h1_s1l5
+--model SCINet --train_eposhs 100 --patience 5 --levels 5 --lr 5e-5 --batch_size 256 --dropout 0.5 --model_name etth1_M_I736_O720_lr5e-5_bs256_dp0.5_h1_s1l5
 
 srun python main.py --data ETTh1 --features M  --seq_len 96 --label_len 48 --pred_len 24 --hidden-size 4 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 3 --lr 3e-3 --batch_size 8 --dropout 0.5 --model_name etth1_M_I48_O24_lr3e-3_bs8_dp0.5_h4_s1l3_
+--model SCINet --train_eposhs 100 --patience 5 --levels 3 --lr 3e-3 --batch_size 8 --dropout 0.5 --model_name etth1_M_I48_O24_lr3e-3_bs8_dp0.5_h4_s1l3_
 srun python main.py --data ETTh1 --features M  --seq_len 96 --label_len 48 --pred_len 48 --hidden-size 4 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 3 --lr 0.009 --batch_size 16 --dropout 0.25 --model_name etth1_M_I96_O48_lr0.009_bs16_dp0.25_h4_s1l3_
+--model SCINet --train_eposhs 100 -patience 5 --levels 3 --lr 0.009 --batch_size 16 --dropout 0.25 --model_name etth1_M_I96_O48_lr0.009_bs16_dp0.25_h4_s1l3_
 srun python main.py --data ETTh1 --features M  --seq_len 96 --label_len 48 --pred_len 168 --hidden-size 4 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 3 --lr 5e-4 --batch_size 32 --dropout 0.5 --model_name etth1_M_I336_O168_lr5e-4_bs32_dp0.5_h4_s1l3_
+--model SCINet --train_eposhs 100 --patience 5 --levels 3 --lr 5e-4 --batch_size 32 --dropout 0.5 --model_name etth1_M_I336_O168_lr5e-4_bs32_dp0.5_h4_s1l3_
 srun python main.py --data ETTh1 --features M  --seq_len 96 --label_len 48 --pred_len 336 --hidden-size 1 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 4 --lr 1e-4 --batch_size 512 --dropout 0.5 --model_name etth1_M_I336_O336_lr1e-4_bs512_dp0.5_h1_s1l4_
+--model SCINet --train_eposhs 100 --patience 5 --levels 4 --lr 1e-4 --batch_size 512 --dropout 0.5 --model_name etth1_M_I336_O336_lr1e-4_bs512_dp0.5_h1_s1l4_
 srun python main.py --data ETTh1 --features M  --seq_len 96 --label_len 48 --pred_len 720 --hidden-size 1 --stacks 1 \
---model SCINet --train_eposhs 100 patience 5 --levels 5 --lr 5e-5 --batch_size 256 --dropout 0.5 --model_name etth1_M_I736_O720_lr5e-5_bs256_dp0.5_h1_s1l5_
+--model SCINet --train_eposhs 100 --patience 5 --levels 5 --lr 5e-5 --batch_size 256 --dropout 0.5 --model_name etth1_M_I736_O720_lr5e-5_bs256_dp0.5_h1_s1l5_
