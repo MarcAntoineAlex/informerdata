@@ -51,10 +51,10 @@ class Exp_Scinet(Exp_Basic):
             single_step_output_One=self.args.single_step_output_One,
             positionalE=self.args.positionalEcoding,
             modified=True,
-            RIN=self.args.RIN)
+            RIN=self.args.RIN).double()
         print(model)
         self.arch = Architect_Scinet(model, self.device, self.args, self._select_criterion(self.args.loss))
-        return model.double()
+        return model
 
     def _get_data(self, flag, samp=False):
         args = self.args
@@ -252,7 +252,7 @@ class Exp_Scinet(Exp_Basic):
                     val_data = next(val_iter)
 
                 for j in range(len(trn_data)):
-                    trn_data[j], val_data[j] = trn_data[j].float().to(self.device), val_data[j].float().to(self.device)
+                    trn_data[j], val_data[j] = trn_data[j].double().to(self.device), val_data[j].double().to(self.device)
                 iter_count += 1
                 indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
 
