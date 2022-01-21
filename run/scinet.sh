@@ -5,8 +5,8 @@
 #SBATCH --cpus-per-task=4
 #SBATCH --gres=gpu:V100:2
 #SBATCH -J scinet
-#SBATCH -o log/job-%j.log
-#SBATCH -e log/job-%j.err
+#SBATCH -o scilog/job-%j.log
+#SBATCH -e scilog/job-%j.err
 # shellcheck disable=SC2046
 # shellcheck disable=SC2006
 echo Time is `date`
