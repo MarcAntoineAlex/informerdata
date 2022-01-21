@@ -256,16 +256,16 @@ class Exp_Scinet(Exp_Basic):
                 iter_count += 1
                 indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
 
-                # Update A
-                A_optim.zero_grad()
-                loss, da = self.arch.unrolled_backward(self.args, trn_data, train_data, val_data, vali_data, trn_data,
-                                                       train_data, self.args.unrolled, W_optim, indice)
-                DA[-1].append(0)
-                if self.args.rank == 0:
-                    for i, d in enumerate(da):
-                        DA[-1][-1] = (DA[-1][-1] * i + d.mean().cpu().item()) / (i+1)
-                A_optim.step()
-
+                # # Update A
+                # A_optim.zero_grad()
+                # loss, da = self.arch.unrolled_backward(self.args, trn_data, train_data, val_data, vali_data, trn_data,
+                #                                        train_data, self.args.unrolled, W_optim, indice)
+                # DA[-1].append(0)
+                # if self.args.rank == 0:
+                #     for i, d in enumerate(da):
+                #         DA[-1][-1] = (DA[-1][-1] * i + d.mean().cpu().item()) / (i+1)
+                # A_optim.step()
+                print("Prove")
                 # Update W
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
