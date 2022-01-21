@@ -21,6 +21,7 @@ import numpy as np
 # informer
 import utils.tools as tools
 from exp.exp_m import Exp_M_Informer
+from exp.exp_scinet import Exp_Scinet
 
 
 def main():
@@ -106,7 +107,10 @@ def worker(gpu, ngpus_per_node, args_in):
                     args.n_heads, args.e_layers, args.d_layers, args.d_ff, args.attn, args.factor, args.embed,
                     args.distil, args.mix, args.des, ii)
 
-        exp = Exp(args)  # set experiments
+        if args.model == 'SCINet':
+            exp = Exp_Scinet(args)
+        else:
+            exp = Exp(args)  # set experiments
         logger.info('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
         exp.train(ii, setting, logger)
 
@@ -123,7 +127,7 @@ def worker(gpu, ngpus_per_node, args_in):
             os.remove(args.path + '/{}/1_checkpoint.pth'.format(ii))
 
         torch.cuda.empty_cache()
-    mses, maes = torch.sort(torch.tensor(mses))[0][:-2].mean(), torch.sort(torch.tensor(maes))[0][:-1].mean()
+    mses, maes = torch.sort(torch.tensor(mses))[0][:-1].mean(), torch.sort(torch.tensor(maes))[0][:-1].mean()
 
     logger.info("R{} PRED {} FINAL RESULT {} {}".format(args.rank, args.pred_len, torch.tensor(mses).mean(), torch.tensor(maes).mean()))
 

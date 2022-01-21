@@ -100,7 +100,6 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training',
                             default=False)
         parser.add_argument('--inverse', action='store_true', help='inverse output data', default=False)
-
         parser.add_argument('--use_gpu', type=bool, default=True, help='use gpu')
         parser.add_argument('--use_multi_gpu', action='store_true', help='use multiple gpus', default=False)
         parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
@@ -119,6 +118,22 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--temp', type=float, default=1)
         parser.add_argument('--unrolled', type=float, default=1e-4)
 
+        # SCINet
+        parser.add_argument('--concat_len', type=int, default=0)
+        parser.add_argument('--single_step', type=int, default=0)
+        parser.add_argument('--single_step_output_One', type=int, default=0)
+        parser.add_argument('--lastWeight', type=float, default=1.0)
+        parser.add_argument('--hidden-size', default=1, type=float, help='hidden channel of module')
+        parser.add_argument('--INN', default=1, type=int, help='use INN or basic strategy')
+        parser.add_argument('--kernel', default=5, type=int, help='kernel size, 3, 5, 7')
+        parser.add_argument('--dilation', default=1, type=int, help='dilation')
+        parser.add_argument('--window_size', default=12, type=int, help='input size')
+        parser.add_argument('--positionalEcoding', type=bool, default=False)
+        parser.add_argument('--groups', type=int, default=1)
+        parser.add_argument('--levels', type=int, default=3)
+        parser.add_argument('--stacks', type=int, default=1, help='1 stack or 2 stacks')
+
+        parser.add_argument('--RIN', type=bool, default=False)
         args = parser.parse_args()
 
         args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False
