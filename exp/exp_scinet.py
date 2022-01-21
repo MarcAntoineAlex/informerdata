@@ -118,7 +118,7 @@ class Exp_Scinet(Exp_Basic):
         return data_set, data_loader
 
     def _select_optimizer(self):
-        W_optim = optim.Adam(self.model.W(), lr=self.args.lr)
+        W_optim = optim.Adam(self.model.W(), lr=self.args.learning_rate)
         A_optim = optim.Adam(self.model.A(), self.args.A_lr, weight_decay=0)
         if self.args.fourrier:
             A_optim = optim.Adam(self.model.A(), self.args.A_lr, weight_decay=self.args.A_weight_decay)
