@@ -413,7 +413,7 @@ class Exp_Scinet(Exp_Basic):
         return mse, mae
 
     def _process_one_batch_SCINet(self, dataset_object, data):
-        batch_x = data[0].double().cuda()
+        batch_x = data[0].double().to(self.device)
         batch_y = data[1].double()
 
         if self.args.stacks == 1:
@@ -428,7 +428,7 @@ class Exp_Scinet(Exp_Basic):
         if self.args.stacks == 2:
             mid_scaled = dataset_object.inverse_transform(mid)
         f_dim = -1 if self.args.features == 'MS' else 0
-        batch_y = batch_y[:, -self.args.pred_len:, f_dim:].cuda()
+        batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
         batch_y_scaled = dataset_object.inverse_transform(batch_y)
 
         if self.args.stacks == 1:
