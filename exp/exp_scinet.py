@@ -51,7 +51,10 @@ class Exp_Scinet(Exp_Basic):
             single_step_output_One=self.args.single_step_output_One,
             positionalE=self.args.positionalEcoding,
             modified=True,
-            RIN=self.args.RIN).double()
+            RIN=self.args.RIN,
+            train_length=train_length,
+            args=self.args,
+            fourrier=self.args.fourrier).double()
         print(model)
         self.arch = Architect_Scinet(model, self.device, self.args, self._select_criterion(self.args.loss))
         return model
