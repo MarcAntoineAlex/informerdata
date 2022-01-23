@@ -294,7 +294,7 @@ class Exp_Scinet(Exp_Basic):
                         loss.backward()
                         W_optim.step()
                 train_loss.append(loss.item())
-
+                logger.info("1")
                 if (i + 1) % 50 == 0:
                     logger.info("\tR{0} iters: {1}, epoch: {2} | loss: {3:.7f}".format(self.args.rank, i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
