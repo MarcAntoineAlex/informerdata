@@ -52,6 +52,7 @@ class Exp_Scinet(Exp_Basic):
             positionalE=self.args.positionalEcoding,
             modified=True,
             RIN=self.args.RIN,
+            device=self.device,
             train_length=train_length,
             args=self.args,
             fourrier=self.args.fourrier).double()
