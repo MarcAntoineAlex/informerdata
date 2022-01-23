@@ -203,8 +203,8 @@ class Fourrier(torch.nn.Module):
             self.sin = nn.Parameter(sin)
             self.cos = nn.Parameter(cos)
         else:
-            self.sin = nn.Parameter(1 / torch.zeros(self.nparam).unsqueeze(0))
-            self.cos = nn.Parameter(1 / torch.zeros(self.nparam).unsqueeze(0))
+            self.sin = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
+            self.cos = nn.Parameter(1 / torch.arange(1, self.nparam+1).unsqueeze(0)/3)
 
     def forward(self):
         x = torch.arange(self.train_length)[:, None].expand(self.train_length, self.nparam) * 3.1415 / self.train_length
