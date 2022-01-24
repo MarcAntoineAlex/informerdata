@@ -96,12 +96,13 @@ def worker(gpu, ngpus_per_node, args_in):
     args.s_layers = [int(s_l) for s_l in args.s_layers.replace(' ', '').split(',')]
     args.detail_freq = args.freq
     args.freq = args.freq[-1:]
-    if args.rank == 0:
-        args.n_heads = args.teacher_head
-        args.d_model = args.teacher_head * 64
-    if args.rank == 1:
-        args.n_heads = args.student_head
-        args.d_model = args.student_head * 64
+    if args.trigger:
+        if args.rank == 0:
+            args.n_heads = args.teacher_head
+            args.d_model = args.teacher_head * 64
+        if args.rank == 1:
+            args.n_heads = args.student_head
+            args.d_model = args.student_head * 64
 
     Exp = Exp_M_Informer
     mses, maes = [], []
