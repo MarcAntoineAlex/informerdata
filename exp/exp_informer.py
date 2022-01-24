@@ -50,7 +50,7 @@ class Exp_Informer(Exp_Basic):
                 self.args.output_attention,
                 self.args.distil,
                 self.args.mix,
-                self.device,
+                self.device
             ).float()
         
         if self.args.use_multi_gpu and self.args.use_gpu:
@@ -114,7 +114,7 @@ class Exp_Informer(Exp_Basic):
         self.model.eval()
         total_loss = []
         for i, (batch_x,batch_y,batch_x_mark,batch_y_mark) in enumerate(vali_loader):
-            pred, true, _ = self._process_one_batch(
+            pred, true = self._process_one_batch(
                 vali_data, batch_x, batch_y, batch_x_mark, batch_y_mark)
             loss = criterion(pred.detach().cpu(), true.detach().cpu())
             total_loss.append(loss)
@@ -137,7 +137,7 @@ class Exp_Informer(Exp_Basic):
         early_stopping = EarlyStopping(patience=self.args.patience, verbose=True)
         
         model_optim = self._select_optimizer()
-        criterion = self._select_criterion()
+        criterion =  self._select_criterion()
 
         if self.args.use_amp:
             scaler = torch.cuda.amp.GradScaler()
@@ -152,9 +152,9 @@ class Exp_Informer(Exp_Basic):
                 iter_count += 1
                 
                 model_optim.zero_grad()
-                pred, true, loss_sum = self._process_one_batch(
+                pred, true = self._process_one_batch(
                     train_data, batch_x, batch_y, batch_x_mark, batch_y_mark)
-                loss = criterion(pred, true) + loss_sum
+                loss = criterion(pred, true)
                 train_loss.append(loss.item())
                 
                 if (i+1) % 100==0:
@@ -192,7 +192,7 @@ class Exp_Informer(Exp_Basic):
         
         return self.model
 
-    def test(self, setting):
+    def test(self, setting, ii=0):
         test_data, test_loader = self._get_data(flag='test')
         
         self.model.eval()
@@ -201,7 +201,7 @@ class Exp_Informer(Exp_Basic):
         trues = []
         
         for i, (batch_x,batch_y,batch_x_mark,batch_y_mark) in enumerate(test_loader):
-            pred, true, _ = self._process_one_batch(
+            pred, true = self._process_one_batch(
                 test_data, batch_x, batch_y, batch_x_mark, batch_y_mark)
             preds.append(pred.detach().cpu().numpy())
             trues.append(true.detach().cpu().numpy())
@@ -209,8 +209,8 @@ class Exp_Informer(Exp_Basic):
         preds = np.array(preds)
         trues = np.array(trues)
         print('test shape:', preds.shape, trues.shape)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+        preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
+        trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
         print('test shape:', preds.shape, trues.shape)
 
         # result save
@@ -221,13 +221,13 @@ class Exp_Informer(Exp_Basic):
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
 
-        np.save(folder_path+'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path+'pred.npy', preds)
-        np.save(folder_path+'true.npy', trues)
+        np.save(self.args.path + '/{}/{}_metric.npy'.format(ii, self.args.rank), np.array([mae, mse, rmse, mape, mspe]))
+        np.save(self.args.path + '/{}/{}_pred.npy'.format(ii, self.args.rank), preds)
+        np.save(self.args.path + '/{}/{}_true.npy'.format(ii, self.args.rank), trues)
 
         return
 
-    def predict(self, setting, load=False):
+    def predict(self, setting, ii, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
         
         if load:
@@ -245,14 +245,9 @@ class Exp_Informer(Exp_Basic):
             preds.append(pred.detach().cpu().numpy())
 
         preds = np.array(preds)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
-        
-        # result save
-        folder_path = './results/' + setting +'/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-        
-        np.save(folder_path+'real_prediction.npy', preds)
+        preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
+
+        np.save(self.args.path + '/{}/{}_predictions.npy'.format(ii, self.args.rank), preds)
         
         return
 
@@ -273,25 +268,17 @@ class Exp_Informer(Exp_Basic):
         if self.args.use_amp:
             with torch.cuda.amp.autocast():
                 if self.args.output_attention:
-                    result = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                    loss_sum = result[-1]
-                    outputs = result[0]
+                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
                 else:
-                    result = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                    loss_sum = result[-1]
-                    outputs = result[0]
+                    outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
         else:
             if self.args.output_attention:
-                result = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
-                loss_sum = result[-1]
-                outputs = result[0]
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)[0]
             else:
-                result = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
-                loss_sum = result[-1]
-                outputs = result[0]
+                outputs = self.model(batch_x, batch_x_mark, dec_inp, batch_y_mark)
         if self.args.inverse:
             outputs = dataset_object.inverse_transform(outputs)
         f_dim = -1 if self.args.features=='MS' else 0
         batch_y = batch_y[:,-self.args.pred_len:,f_dim:].to(self.device)
 
-        return outputs, batch_y, loss_sum
+        return outputs, batch_y

@@ -245,7 +245,7 @@ class Exp_qs(Exp_Basic):
 
         return self.model
 
-    def test(self, setting, logger):
+    def test(self, setting, logger, ii=0):
         test_data, test_loader = self._get_data(flag='test')
 
         self.model.eval()
@@ -263,17 +263,12 @@ class Exp_qs(Exp_Basic):
         preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
         trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
 
-        # result save
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         logger.info('R{} mse:{}, mae:{}'.format(self.args.rank, mse, mae))
 
-        # np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        # np.save(folder_path + 'pred.npy', preds)
-        # np.save(folder_path + 'true.npy', trues)
+        np.save(self.args.path + '/{}/{}_metric.npy'.format(ii, self.args.rank), np.array([mae, mse, rmse, mape, mspe]))
+        np.save(self.args.path + '/{}/{}_pred.npy'.format(ii, self.args.rank), preds)
+        np.save(self.args.path + '/{}/{}_true.npy'.format(ii, self.args.rank), trues)
 
         return mse, mae
 
