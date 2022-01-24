@@ -10,7 +10,7 @@ from models.model import Fourrier, sigtemp
 cos = []
 sin = []
 da, dw = [], []
-job = "402854"
+job = "406602"
 num = len(os.listdir("/Users/marc-antoine/Desktop/{}/0".format(job)))//4
 for i in range(num):
     cos.append(torch.from_numpy(np.load('/Users/marc-antoine/Desktop/{}/0/cos{}.npy'.format(job, i))))
@@ -20,7 +20,7 @@ for i in range(num):
 
 for i in range(num):
     print(cos[i])
-    f = Fourrier(8375, 40, None, sin[i], cos[i])
+    f = Fourrier(8360, 40, None, sin[i], cos[i])
     res = 2 * sigtemp(f(), 1).detach().squeeze().numpy()
     # res = f().detach().squeeze().numpy()
     plt.plot(res)

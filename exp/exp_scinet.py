@@ -56,7 +56,6 @@ class Exp_Scinet(Exp_Basic):
             train_length=train_length,
             args=self.args,
             fourrier=self.args.fourrier).float()
-        print(model)
         self.arch = Architect_Scinet(model, self.device, self.args, self._select_criterion(self.args.loss))
         return model
 

@@ -35,14 +35,7 @@ import numpy as np
 #
 # plt.savefig('/Users/marc-antoine/Documents/temp/shangyong.jpg')
 # plt.show()
-x = np.linspace(0, 20, 100000)
-y = np.cos(4*x) * np.exp(-x)
-bruit = np.random.randn(100000)/50
-y += bruit
-plt.plot(x, y)
-plt.show()
-y = idct(y)
-print(y)
-x = np.reciprocal(x)
-plt.plot(x, y)
-plt.show()
+x = np.linspace(-10, 10, 1500)
+
+
+print(x)
