@@ -14,24 +14,35 @@ from scipy.fftpack import dct, idct
 import matplotlib.pyplot as plt
 import numpy as np
 
-data = pd.read_csv('/Users/marc-antoine/Documents/S7/物理实验/UV3600/1.txt', sep=',')
-print(data.columns)
-
-font2 = {'weight': 'normal',
-         'size': 14,
-         }
-
-x = data['NM'][:5000].to_numpy()
-y = data['INTEN'][:5000].to_numpy()
-x = x.astype(np.float)
-y = y.astype(np.float)
-
-plt.plot(x[:], y[:])
-plt.xlabel('{}/nm'.format(chr(955)), font2)
-plt.ylabel('U/V', font2)
-plt.grid()
-plt.xlim(500, 650)
-plt.ylim(0)
-
-plt.savefig('/Users/marc-antoine/Documents/temp/shangyong.jpg')
+# data = pd.read_csv('/Users/marc-antoine/Documents/S7/物理实验/UV3600/1.txt', sep=',')
+# print(data.columns)
+#
+# font2 = {'weight': 'normal',
+#          'size': 14,
+#          }
+#
+# x = data['NM'][:5000].to_numpy()
+# y = data['INTEN'][:5000].to_numpy()
+# x = x.astype(np.float)
+# y = y.astype(np.float)
+#
+# plt.plot(x[:], y[:])
+# plt.xlabel('{}/nm'.format(chr(955)), font2)
+# plt.ylabel('U/V', font2)
+# plt.grid()
+# plt.xlim(500, 650)
+# plt.ylim(0)
+#
+# plt.savefig('/Users/marc-antoine/Documents/temp/shangyong.jpg')
+# plt.show()
+x = np.linspace(0, 20, 100000)
+y = np.cos(4*x) * np.exp(-x)
+bruit = np.random.randn(100000)/50
+y += bruit
+plt.plot(x, y)
+plt.show()
+y = idct(y)
+print(y)
+x = np.reciprocal(x)
+plt.plot(x, y)
 plt.show()

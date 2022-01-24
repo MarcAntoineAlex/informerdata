@@ -22,6 +22,7 @@ import numpy as np
 import utils.tools as tools
 from exp.exp_m import Exp_M_Informer
 from exp.exp_scinet import Exp_Scinet
+from exp.exp_qs import Exp_qs
 
 
 def main():
@@ -103,8 +104,12 @@ def worker(gpu, ngpus_per_node, args_in):
         if args.rank == 1:
             args.n_heads = args.student_head
             args.d_model = args.student_head * 64
-
-    Exp = Exp_M_Informer
+    if args.model == 'SCINet':
+        Exp = Exp_Scinet
+    elif args.model == 'qs':
+        Exp = Exp_qs
+    else:
+        Exp = Exp_M_Informer
     mses, maes = [], []
 
     for ii in range(args.itr):
@@ -114,10 +119,7 @@ def worker(gpu, ngpus_per_node, args_in):
                     args.n_heads, args.e_layers, args.d_layers, args.d_ff, args.attn, args.factor, args.embed,
                     args.distil, args.mix, args.des, ii)
 
-        if args.model == 'SCINet':
-            exp = Exp_Scinet(args)
-        else:
-            exp = Exp(args)  # set experiments
+        exp = Exp(args)  # set experiments
         logger.info('>>>>>>>start training : {}>>>>>>>>>>>>>>>>>>>>>>>>>>'.format(setting))
         exp.train(ii, setting, logger)
 
