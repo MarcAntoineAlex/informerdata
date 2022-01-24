@@ -40,8 +40,8 @@ class Exp_qs(Exp_Basic):
                             self.args.pred_len,
                             output_len=7,
                             n_heads=self.args.n_heads,
-                            n_encoder_layers=self.args.n_encoder_layers,
-                            n_decoder_layers=self.args.n_decoder_layers,
+                            n_encoder_layers=self.args.e_layers,
+                            n_decoder_layers=self.args.d_layers,
                             enc_attn_type=self.args.encoder_attention,
                             dec_attn_type=self.args.decoder_attention,
                             dropout=self.args.dropout).float()
