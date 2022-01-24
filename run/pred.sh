@@ -27,9 +27,8 @@ export NCCL_IB_DISABLE=1
 export MKL_THREADING_LAYER=GNU
 export CUDA_HOME=/usr/local/cuda-10.2
 # sugon does not support infiniband
-srun python -u main.py --fourrier --pred_len 24 --lambda_par 0.6 --A_lr 0.0002 --A_weight_decay 0 \
-        --w_weight_decay 0.01 --fourier_divider 40 --temp 1 --sigmoid 1 --name param1 --data ETTh2 --data_path ETTh2.csv
-srun python -u main.py --fourrier --pred_len 48 --lambda_par 0.6 --A_lr 0.0002 --A_weight_decay 0 \
-        --w_weight_decay 0.001 --fourier_divider 40 --temp 1 --sigmoid 1 --name param1 --data ETTh2 --data_path ETTh2.csv
-srun python -u main.py --fourrier --pred_len 168 --lambda_par 0.6 --A_lr 0.0002 --A_weight_decay 0 \
-        --w_weight_decay 0.0008 --fourier_divider 40 --temp 5 --sigmoid 1 --name param2 --data ETTh2 --data_path ETTh2.csv
+srun python -u main.py --pred_len 168 --do_predict --lambda_par 0.6 --A_lr 0.04 --A_weight_decay 0.01 \
+        --w_weight_decay 0.0008 --fourier_divider 40 --temp 5 --sigmoid 1 --name pred --data ETTh1 --itr 3
+srun python -u main.py --fourrier --pred_len 168 --do_predict --lambda_par 0.6 --A_lr 0.0002 --A_weight_decay 0 \
+        --w_weight_decay 0.0008 --fourier_divider 40 --temp 5 --sigmoid 1 --name pred --data ETTh1 --itr 3
+srun python -u main_informer.py --pred_len 168 --do_predict --name pred --data ETTh1 --itr 3
