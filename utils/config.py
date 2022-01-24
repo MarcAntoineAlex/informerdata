@@ -135,8 +135,15 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--groups', type=int, default=1)
         parser.add_argument('--levels', type=int, default=3)
         parser.add_argument('--stacks', type=int, default=1, help='1 stack or 2 stacks')
-
         parser.add_argument('--RIN', type=bool, default=False)
+
+        # Query Selector
+        parser.add_argument('--embedding_size', type=int, default=32)
+        parser.add_argument('--setting', type=str, default='m_h1_48')
+        parser.add_argument('--hidden_size', type=int, default=96)
+        parser.add_argument('--encoder_attention', type=str, default="query_selector_0.90")
+        parser.add_argument('--decoder_attention', type=str, default='full')
+
         args = parser.parse_args()
 
         args.use_gpu = True if torch.cuda.is_available() and args.use_gpu else False

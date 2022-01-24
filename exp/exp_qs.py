@@ -35,10 +35,10 @@ class Exp_qs(Exp_Basic):
         train_length = len(train_data)
         model = Transformer(self.args.embedding_size,
                             self.args.hidden_size,
-                            self.args.input_len,
-                            self.args.dec_seq_len,
+                            7,
+                            self.args.label_len,
                             self.args.pred_len,
-                            output_len=self.args.output_len,
+                            output_len=7,
                             n_heads=self.args.n_heads,
                             n_encoder_layers=self.args.n_encoder_layers,
                             n_decoder_layers=self.args.n_decoder_layers,
