@@ -312,14 +312,12 @@ class Exp_M_Informer(Exp_Basic):
 
         return mse, mae
 
-    def predict(self, setting, load=False):
+    def predict(self, setting, ii, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
 
         if load:
-            path = os.path.join(self.args.checkpoints, setting)
-            best_model_path = path + '/' + 'checkpoint.pth'
+            best_model_path = self.args.path + '/{}/{}_checkpoint.pth'.format(ii, self.args.rank)
             self.model.load_state_dict(torch.load(best_model_path))
-
         self.model.eval()
 
         preds = []
@@ -331,13 +329,7 @@ class Exp_M_Informer(Exp_Basic):
         preds = np.array(preds)
         preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
 
-        # result save
-        folder_path = './results/' + setting + '/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-
-        np.save(folder_path + 'real_prediction.npy', preds)
-
+        np.save(self.args.path + '/{}/{}_predictions.npy'.format(ii, self.args.rank), preds)
         return
 
     def _process_one_batch(self, data):
