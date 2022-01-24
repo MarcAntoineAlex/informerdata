@@ -269,7 +269,7 @@ class Exp_Scinet(Exp_Basic):
                 #     for i, d in enumerate(da):
                 #         DA[-1][-1] = (DA[-1][-1] * i + d.mean().cpu().item()) / (i+1)
                 # A_optim.step()
-                print("Prove")
+                logger.info("R{} cp0".format(self.args.rank))
                 # Update W
                 W_optim.zero_grad()
                 pred = torch.zeros(trn_data[1][:, -self.args.pred_len:, :].shape).to(self.device)
@@ -278,23 +278,31 @@ class Exp_Scinet(Exp_Basic):
                         train_data, trn_data)
                     loss = self.critere(pred, true, indice) + self.critere(mid, true, indice)
                     loss.backward()
-
+                    logger.info("R{} cp1 {}".format(self.args.rank, loss))
                     W_optim.step()
+                logger.info("R{} cp2".format(self.args.rank))
                 for r in range(0, self.args.world_size - 1):
                     if self.args.rank == r:
                         pred, pred_scale, mid, mid_scale, true, true_scale = self._process_one_batch_SCINet(
                             train_data, trn_data)
+                    logger.info("R{} cp3 {}".format(self.args.rank, pred))
                     dist.broadcast(pred.contiguous(), r)
+                    logger.info("R{} cp4 {}".format(self.args.rank, pred))
                     if self.args.rank == r + 1:
                         own_pred, pred_scale, own_mid, mid_scale, true, true_scale = self._process_one_batch_SCINet(
                             train_data, trn_data)
+                        logger.info("R{} cp5".format(self.args.rank))
                         loss1 = criterion(own_pred, true) + criterion(own_mid, true)
+
                         loss2 = criterion(own_pred, pred)  # todo: check shape of mid and add it to loss2
+                        logger.info("R{} cp6 {} {}".format(self.args.rank, loss1, loss2))
+
                         loss = loss1 * (1-self.args.lambda_par) + loss2 * self.args.lambda_par
                         loss.backward()
                         W_optim.step()
+                        logger.info("R{} cp7".format(self.args.rank))
                 train_loss.append(loss.item())
-                logger.info("1")
+                logger.info("R{} cp8".format(self.args.rank))
                 if (i + 1) % 50 == 0:
                     logger.info("\tR{0} iters: {1}, epoch: {2} | loss: {3:.7f}".format(self.args.rank, i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
