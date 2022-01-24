@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=4
 #SBATCH --gres=gpu:V100:2
-#SBATCH -J scinet
+#SBATCH -J qsh2
 #SBATCH -o qslog/job-%j.log
 #SBATCH -e qslog/job-%j.err
 # shellcheck disable=SC2046
