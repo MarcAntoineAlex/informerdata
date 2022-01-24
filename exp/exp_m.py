@@ -273,7 +273,7 @@ class Exp_M_Informer(Exp_Basic):
                 break
 
             adjust_learning_rate(W_optim, epoch + 1, self.args)
-            self.test(setting, logger)
+            self.test(setting, logger, ii)
 
         best_model_path = path + '/' + '{}_checkpoint.pth'.format(self.args.rank)
         self.model.load_state_dict(torch.load(best_model_path))
