@@ -183,8 +183,8 @@ class Architect_Scinet():
         return hessian
 
     def _process_one_batch_SCINet(self, dataset_object, data, model):
-        batch_x = data[0].double().to(self.device)
-        batch_y = data[1].double()
+        batch_x = data[0].float().to(self.device)
+        batch_y = data[1].float()
 
         if self.args.stacks == 1:
             outputs = model(batch_x)

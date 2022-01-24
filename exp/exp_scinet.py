@@ -55,7 +55,7 @@ class Exp_Scinet(Exp_Basic):
             device=self.device,
             train_length=train_length,
             args=self.args,
-            fourrier=self.args.fourrier).double()
+            fourrier=self.args.fourrier).float()
         print(model)
         self.arch = Architect_Scinet(model, self.device, self.args, self._select_criterion(self.args.loss))
         return model
@@ -256,7 +256,7 @@ class Exp_Scinet(Exp_Basic):
                     val_data = next(val_iter)
 
                 for j in range(len(trn_data)):
-                    trn_data[j], val_data[j] = trn_data[j].double().to(self.device), val_data[j].double().to(self.device)
+                    trn_data[j], val_data[j] = trn_data[j].float().to(self.device), val_data[j].float().to(self.device)
                 iter_count += 1
                 indice = train_loader.sampler.indice[data_count:data_count+self.args.batch_size]
 
@@ -421,8 +421,8 @@ class Exp_Scinet(Exp_Basic):
         return mse, mae
 
     def _process_one_batch_SCINet(self, dataset_object, data):
-        batch_x = data[0].double().to(self.device)
-        batch_y = data[1].double()
+        batch_x = data[0].float().to(self.device)
+        batch_y = data[1].float()
 
         if self.args.stacks == 1:
             outputs = self.model(batch_x)
