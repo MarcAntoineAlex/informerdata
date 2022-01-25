@@ -176,42 +176,42 @@ class Exp_Scinet(Exp_Basic):
             total_loss.append(loss)
         total_loss = np.average(total_loss)
 
-        if self.args.stacks == 1:
-            preds = np.array(preds)
-            trues = np.array(trues)
-            pred_scales = np.array(pred_scales)
-            true_scales = np.array(true_scales)
-
-            preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
-            trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
-            true_scales = true_scales.reshape((-1, true_scales.shape[-2], true_scales.shape[-1]))
-            pred_scales = pred_scales.reshape((-1, pred_scales.shape[-2], pred_scales.shape[-1]))
-
-            mae, mse, rmse, mape, mspe, corr = metric(preds, trues)
-            maes, mses, rmses, mapes, mspes, corrs = metric(pred_scales, true_scales)
-        elif self.args.stacks == 2:
-            preds = np.array(preds)
-            trues = np.array(trues)
-            mids = np.array(mids)
-            pred_scales = np.array(pred_scales)
-            true_scales = np.array(true_scales)
-            mid_scales = np.array(mid_scales)
-
-            preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
-            trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
-            mids = mids.reshape((-1, mids.shape[-2], mids.shape[-1]))
-            true_scales = true_scales.reshape((-1, true_scales.shape[-2], true_scales.shape[-1]))
-            pred_scales = pred_scales.reshape((-1, pred_scales.shape[-2], pred_scales.shape[-1]))
-            mid_scales = mid_scales.reshape((-1, mid_scales.shape[-2], mid_scales.shape[-1]))
-            # print('test shape:', preds.shape, mids.shape, trues.shape)
-
-            mae, mse, rmse, mape, mspe, corr = metric(mids, trues)
-            maes, mses, rmses, mapes, mspes, corrs = metric(mid_scales, true_scales)
-            mae, mse, rmse, mape, mspe, corr = metric(preds, trues)
-            maes, mses, rmses, mapes, mspes, corrs = metric(pred_scales, true_scales)
-
-        else:
-            print('Error!')
+        # if self.args.stacks == 1:
+        #     preds = np.array(preds)
+        #     trues = np.array(trues)
+        #     pred_scales = np.array(pred_scales)
+        #     true_scales = np.array(true_scales)
+        #
+        #     preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
+        #     trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
+        #     true_scales = true_scales.reshape((-1, true_scales.shape[-2], true_scales.shape[-1]))
+        #     pred_scales = pred_scales.reshape((-1, pred_scales.shape[-2], pred_scales.shape[-1]))
+        #
+        #     mae, mse, rmse, mape, mspe, corr = metric(preds, trues)
+        #     maes, mses, rmses, mapes, mspes, corrs = metric(pred_scales, true_scales)
+        # elif self.args.stacks == 2:
+        #     preds = np.array(preds)
+        #     trues = np.array(trues)
+        #     mids = np.array(mids)
+        #     pred_scales = np.array(pred_scales)
+        #     true_scales = np.array(true_scales)
+        #     mid_scales = np.array(mid_scales)
+        #
+        #     preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
+        #     trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
+        #     mids = mids.reshape((-1, mids.shape[-2], mids.shape[-1]))
+        #     true_scales = true_scales.reshape((-1, true_scales.shape[-2], true_scales.shape[-1]))
+        #     pred_scales = pred_scales.reshape((-1, pred_scales.shape[-2], pred_scales.shape[-1]))
+        #     mid_scales = mid_scales.reshape((-1, mid_scales.shape[-2], mid_scales.shape[-1]))
+        #     # print('test shape:', preds.shape, mids.shape, trues.shape)
+        #
+        #     mae, mse, rmse, mape, mspe, corr = metric(mids, trues)
+        #     maes, mses, rmses, mapes, mspes, corrs = metric(mid_scales, true_scales)
+        #     mae, mse, rmse, mape, mspe, corr = metric(preds, trues)
+        #     maes, mses, rmses, mapes, mspes, corrs = metric(pred_scales, true_scales)
+        #
+        # else:
+        #     print('Error!')
 
         return total_loss
 
