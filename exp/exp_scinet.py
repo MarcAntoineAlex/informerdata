@@ -302,6 +302,7 @@ class Exp_Scinet(Exp_Basic):
                         # logger.info("R{} cp7".format(self.args.rank))
                 train_loss.append(loss.item())
                 # logger.info("R{} cp8".format(self.args.rank))
+                print(i)
                 if (i + 1) % 50 == 0:
                     logger.info("\tR{0} iters: {1}, epoch: {2} | loss: {3:.7f}".format(self.args.rank, i + 1, epoch + 1, loss.item()))
                     speed = (time.time() - time_now) / iter_count
