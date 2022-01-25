@@ -395,8 +395,8 @@ class Exp_Scinet(Exp_Basic):
             true_scales = true_scales.reshape((-1, true_scales.shape[-2], true_scales.shape[-1]))
             pred_scales = pred_scales.reshape((-1, pred_scales.shape[-2], pred_scales.shape[-1]))
 
-            mae, mse, rmse, mape, mspe, corr = metric(preds, trues)
-            maes, mses, rmses, mapes, mspes, corrs = metric(pred_scales, true_scales)
+            mae, mse, rmse, mape, mspe = metric(preds, trues)
+            maes, mses, rmses, mapes, mspes = metric(pred_scales, true_scales)
 
         elif self.args.stacks == 2:
             preds = np.array(preds)
@@ -411,12 +411,14 @@ class Exp_Scinet(Exp_Basic):
             trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
             true_scales = true_scales.reshape((-1, true_scales.shape[-2], true_scales.shape[-1]))
             pred_scales = pred_scales.reshape((-1, pred_scales.shape[-2], pred_scales.shape[-1]))
-            mae, mse, rmse, mape, mspe, corr = metric(preds, trues)
-            maes, mses, rmses, mapes, mspes, corrs = metric(pred_scales, true_scales)
+            mae, mse, rmse, mape, mspe = metric(preds, trues)
+            maes, mses, rmses, mapes, mspes = metric(pred_scales, true_scales)
 
         else:
             print('Error!')
         logger.info('R{} mse:{}, mae:{}'.format(self.args.rank, mse, mae))
+        logger.info('R{} mses:{}, maes:{}'.format(self.args.rank, mses, maes))
+
         return mse, mae
 
     def _process_one_batch_SCINet(self, dataset_object, data):
