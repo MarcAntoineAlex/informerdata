@@ -199,4 +199,5 @@ class Architect_qs():
         batch_x = data[0].float().to(self.device)
         batch_y = data[1].float().to(self.device)
         outputs = model(batch_x)
+        batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
         return outputs, batch_y

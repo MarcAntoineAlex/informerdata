@@ -298,6 +298,7 @@ class Exp_qs(Exp_Basic):
         batch_x = data[0].float().to(self.device)
         batch_y = data[1].float().to(self.device)
         outputs = self.model(batch_x)
+        batch_y = batch_y[:, -self.args.pred_len:, :].to(self.device)
         return outputs, batch_y
 
     def critere(self, pred, true, indice, reduction='mean'):
