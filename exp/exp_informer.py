@@ -192,7 +192,7 @@ class Exp_Informer(Exp_Basic):
         
         return self.model
 
-    def test(self, setting, ii=0):
+    def test(self, setting):
         test_data, test_loader = self._get_data(flag='test')
         
         self.model.eval()
@@ -221,13 +221,13 @@ class Exp_Informer(Exp_Basic):
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
 
-        np.save(self.args.path + '/{}/{}_metric.npy'.format(ii, self.args.rank), np.array([mae, mse, rmse, mape, mspe]))
-        np.save(self.args.path + '/{}/{}_pred.npy'.format(ii, self.args.rank), preds)
-        np.save(self.args.path + '/{}/{}_true.npy'.format(ii, self.args.rank), trues)
+        np.save(folder_path+'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        np.save(folder_path+'pred.npy', preds)
+        np.save(folder_path+'true.npy', trues)
 
         return
 
-    def predict(self, setting, ii, load=False):
+    def predict(self, setting, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
         
         if load:
@@ -245,10 +245,15 @@ class Exp_Informer(Exp_Basic):
             preds.append(pred.detach().cpu().numpy())
 
         preds = np.array(preds)
-        preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
+        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
 
-        np.save(self.args.path + '/{}/{}_predictions.npy'.format(ii, self.args.rank), preds)
+        # result save
+        folder_path = './results/' + setting +'/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
         
+        np.save(folder_path+'real_prediction.npy', preds)
+
         return
 
     def _process_one_batch(self, dataset_object, batch_x, batch_y, batch_x_mark, batch_y_mark):
