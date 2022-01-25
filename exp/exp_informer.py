@@ -239,7 +239,7 @@ class Exp_Informer(Exp_Basic):
 
         return
 
-    def predict(self, setting, load=False):
+    def predict(self, setting, load=False, ii=0):
         pred_data, pred_loader = self._get_data(flag='pred')
         
         if load:
@@ -250,21 +250,39 @@ class Exp_Informer(Exp_Basic):
         self.model.eval()
         
         preds = []
+        trues = []
         
         for i, (batch_x,batch_y,batch_x_mark,batch_y_mark) in enumerate(pred_loader):
             pred, true = self._process_one_batch(
                 pred_data, batch_x, batch_y, batch_x_mark, batch_y_mark)
             preds.append(pred.detach().cpu().numpy())
+            trues.append(true.detach().cpu().numpy())
 
         preds = np.array(preds)
-        preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
+        preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
+        trues = np.array(trues)
+        trues = preds.reshape((-1, trues.shape[-2], trues.shape[-1]))
 
-        # result save
-        folder_path = './results/' + setting +'/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+
+        path = os.path.join("run", 'searchs')
+        path = os.path.join(path, self.args.name)
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+        path = os.path.join(path, os.environ["SLURM_JOBID"])
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+        path = os.path.join(path, '{}'.format(ii))
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
         
-        np.save(folder_path+'real_prediction.npy', preds)
+        np.save(path+'real_prediction.npy', preds)
+        np.save(path+'true_to_pred.npy', trues)
 
         return
 

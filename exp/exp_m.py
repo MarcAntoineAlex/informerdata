@@ -318,15 +318,21 @@ class Exp_M_Informer(Exp_Basic):
         self.model.eval()
 
         preds = []
+        trues = []
 
         for i, pred_d in enumerate(pred_loader):
             pred, true = self._process_one_batch(pred_d)
             preds.append(pred.detach().cpu().numpy())
+            trues.append(true.detach().cpu().numpy())
+
 
         preds = np.array(preds)
         preds = preds.reshape((-1, preds.shape[-2], preds.shape[-1]))
+        trues = np.array(trues)
+        trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
 
         np.save(self.args.path + '/{}/{}_predictions.npy'.format(ii, self.args.rank), preds)
+        np.save(self.args.path + '/{}/{}_true_to_pred.npy'.format(ii, self.args.rank), trues)
         return
 
     def _process_one_batch(self, data):

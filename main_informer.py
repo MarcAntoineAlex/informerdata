@@ -111,6 +111,6 @@ for ii in range(args.itr):
 
     if args.do_predict:
         print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-        exp.predict(setting, True)
+        exp.predict(setting, True, ii)
 
     torch.cuda.empty_cache()
