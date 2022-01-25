@@ -408,7 +408,11 @@ class Transformer(InferenceModule):
                 yield n, p
 
     def A(self):
-        yield self.arch
+        for n, p in self.named_parameters():
+            if 'arch' in n:
+                yield p
+            else:
+                pass
 
     def record(self):
         self.debug = True
