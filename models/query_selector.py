@@ -10,6 +10,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy.stats import wasserstein_distance
 from utils.tools import ProbMask
+from models.model import get_fourrier, Fourrier
 
 
 def a_norm(Q, K):
@@ -345,7 +346,7 @@ class LayerNorm(nn.LayerNorm):
 
 class Transformer(InferenceModule):
     def __init__(self, dim_val, dim_attn, input_size, dec_seq_len, out_seq_len, n_decoder_layers=1, n_encoder_layers=1,
-                 enc_attn_type='full', dec_attn_type='full', n_heads=1, dropout=0.1, debug=False, output_len=1):
+                 enc_attn_type='full', dec_attn_type='full', n_heads=1, dropout=0.1, debug=False, output_len=1, device=None, train_length=0):
         super(Transformer, self).__init__()
         self.dec_seq_len = dec_seq_len
         self.output_len = output_len
@@ -369,7 +370,8 @@ class Transformer(InferenceModule):
         self.out_fc = Linear(dec_seq_len * dim_val, out_seq_len*output_len)
 
         self.debug = debug
-        self.arch = torch.nn.Parameter(torch.zeros(15000, 1, 1))
+        self.device = device
+        self.arch = get_fourrier(train_length, self.args.fourier_divider, self.device)
 
     def forward(self, x):
         # encoder

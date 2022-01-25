@@ -1,7 +1,7 @@
 from data.data_loader import Dataset_ETT_hour, Dataset_ETT_minute, Dataset_Custom, Dataset_Pred
 from exp.exp_basic import Exp_Basic
 from models.model import Informer, InformerStack, sigtemp
-from models.architect import Architect
+from models.architect_qs import Architect_qs
 
 from utils.tools import EarlyStopping, adjust_learning_rate, AverageMeter, MyDefiniteSampler
 from utils.metrics import metric
@@ -44,11 +44,12 @@ class Exp_qs(Exp_Basic):
                             n_decoder_layers=self.args.d_layers,
                             enc_attn_type=self.args.encoder_attention,
                             dec_attn_type=self.args.decoder_attention,
-                            dropout=self.args.dropout).float()
-
+                            dropout=self.args.dropout,
+                            device=self.device,
+                            train_length=train_length).float()
         # something
 
-        self.arch = Architect(model, self.device, self.args, self._select_criterion())
+        self.arch = Architect_qs(model, self.device, self.args, self._select_criterion())
         return model
 
     def _get_data(self, flag, samp=False):

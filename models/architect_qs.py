@@ -9,7 +9,7 @@ from models.model import sigtemp
 from torch.nn.functional import sigmoid
 
 
-class Architect():
+class Architect_qs():
     """ Compute gradients of alphas """
     def __init__(self, net, device, args, criterion, inverse_transform=None):
         """
