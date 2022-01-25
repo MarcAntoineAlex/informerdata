@@ -192,7 +192,7 @@ class Exp_Informer(Exp_Basic):
         
         return self.model
 
-    def test(self, setting):
+    def test(self, setting, ii=0):
         test_data, test_loader = self._get_data(flag='test')
         
         self.model.eval()
@@ -213,17 +213,29 @@ class Exp_Informer(Exp_Basic):
         trues = trues.reshape((-1, trues.shape[-2], trues.shape[-1]))
         print('test shape:', preds.shape, trues.shape)
 
-        # result save
-        folder_path = './results/' + setting +'/'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
-
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
 
-        np.save(folder_path+'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
-        np.save(folder_path+'pred.npy', preds)
-        np.save(folder_path+'true.npy', trues)
+        path = os.path.join("run", 'searchs')
+        path = os.path.join(path, self.args.name)
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+        path = os.path.join(path, os.environ["SLURM_JOBID"])
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+        path = os.path.join(path, '{}'.format(ii))
+        try:
+            os.makedirs(path)
+        except FileExistsError:
+            pass
+
+        np.save(path+'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
+        np.save(path+'pred.npy', preds)
+        np.save(path+'true.npy', trues)
 
         return
 

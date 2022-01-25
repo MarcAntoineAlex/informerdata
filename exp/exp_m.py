@@ -280,7 +280,7 @@ class Exp_M_Informer(Exp_Basic):
 
         return self.model
 
-    def test(self, setting, logger, ii=0):
+    def test(self, setting, logger, ii=0, save=False):
         test_data, test_loader = self._get_data(flag='test')
 
         self.model.eval()
@@ -302,9 +302,10 @@ class Exp_M_Informer(Exp_Basic):
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         logger.info('R{} mse:{}, mae:{}'.format(self.args.rank, mse, mae))
 
-        np.save(self.args.path + '/{}/{}_metric.npy'.format(ii, self.args.rank), np.array([mae, mse, rmse, mape, mspe]))
-        np.save(self.args.path +  '/{}/{}_pred.npy'.format(ii, self.args.rank), preds)
-        np.save(self.args.path +  '/{}/{}_true.npy'.format(ii, self.args.rank), trues)
+        if save:
+            np.save(self.args.path + '/{}/{}_metric.npy'.format(ii, self.args.rank), np.array([mae, mse, rmse, mape, mspe]))
+            np.save(self.args.path +  '/{}/{}_pred.npy'.format(ii, self.args.rank), preds)
+            np.save(self.args.path +  '/{}/{}_true.npy'.format(ii, self.args.rank), trues)
 
         return mse, mae
 

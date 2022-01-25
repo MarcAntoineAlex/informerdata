@@ -124,7 +124,7 @@ def worker(gpu, ngpus_per_node, args_in):
         exp.train(ii, setting, logger)
 
         logger.info('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-        mse, mae = exp.test(setting, logger, ii)
+        mse, mae = exp.test(setting, logger, ii, save=True)
         mses.append(mse.item())
         maes.append(mae.item())
 

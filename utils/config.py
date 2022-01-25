@@ -117,7 +117,7 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--fourier_divider', type=int, default=50)
         parser.add_argument('--temp', type=float, default=1)
         parser.add_argument('--unrolled', type=float, default=1e-4)
-        parser.add_argument('--trigger', action='store_true', default=False)
+        parser.add_argument('--trigger', action='store_true', default=fal)
         parser.add_argument('--teacher_head', type=int, default=8)
         parser.add_argument('--student_head', type=int, default=8)
 
