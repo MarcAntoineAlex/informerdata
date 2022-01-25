@@ -46,7 +46,8 @@ class Exp_qs(Exp_Basic):
                             dec_attn_type=self.args.decoder_attention,
                             dropout=self.args.dropout,
                             device=self.device,
-                            train_length=train_length).float()
+                            train_length=train_length,
+                            args=self.args).float()
         # something
 
         self.arch = Architect_qs(model, self.device, self.args, self._select_criterion())

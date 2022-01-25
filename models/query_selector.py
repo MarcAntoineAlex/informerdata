@@ -346,7 +346,7 @@ class LayerNorm(nn.LayerNorm):
 
 class Transformer(InferenceModule):
     def __init__(self, dim_val, dim_attn, input_size, dec_seq_len, out_seq_len, n_decoder_layers=1, n_encoder_layers=1,
-                 enc_attn_type='full', dec_attn_type='full', n_heads=1, dropout=0.1, debug=False, output_len=1, device=None, train_length=0):
+                 enc_attn_type='full', dec_attn_type='full', n_heads=1, dropout=0.1, debug=False, output_len=1, device=None, train_length=0, args=None):
         super(Transformer, self).__init__()
         self.dec_seq_len = dec_seq_len
         self.output_len = output_len
@@ -371,6 +371,7 @@ class Transformer(InferenceModule):
 
         self.debug = debug
         self.device = device
+        self.args = args
         self.arch = get_fourrier(train_length, self.args.fourier_divider, self.device)
 
     def forward(self, x):
