@@ -57,3 +57,6 @@ plt.xlim(0, 5)
 plt.show()
 
 print(x)
+x = 24
+y = str(x)
+print(y)

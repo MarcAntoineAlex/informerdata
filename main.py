@@ -104,6 +104,14 @@ def worker(gpu, ngpus_per_node, args_in):
         if args.rank == 1:
             args.n_heads = args.student_head
             args.d_model = args.student_head * 64
+    if args.data == 'WTH' or args.data == 'ECL':
+        settings = {'24':[168, 168, 3, 2], '48':[96, 96, 2, 1], '168': [336, 168, 3, 2], '336':[720, 168, 3, 2], '720':[720, 336, 3, 2]}
+        set = settings[str(args.pred_len)]
+        args.seq_len = set[0]
+        args.label_len = set[1]
+        args.e_layers = set[2]
+        args.d_layers = set[3]
+
     if args.model == 'SCINet':
         Exp = Exp_Scinet
     elif args.model == 'qs':
