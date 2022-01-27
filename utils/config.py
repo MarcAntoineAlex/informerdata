@@ -107,7 +107,7 @@ class MInformerConfig(BaseConfig):
 
         # other settings
         parser.add_argument('--w_momentum', type=float, default=0.9)
-        parser.add_argument('--w_weight_decay', type=float, default=1e-3)
+        parser.add_argument('--w_weight_decay', type=float, default=0.005)
         parser.add_argument('--A_lr', type=float, default=0.0002)
         parser.add_argument('--A_weight_decay', type=float, default=0)
         parser.add_argument('--max_hessian_grad_norm', type=float, default=1)
