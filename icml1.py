@@ -75,7 +75,7 @@ l1, = plt.plot(mse[1], 'o-', color='orange')
 l2, = plt.plot(mse[2], '^-', color='green')
 l3, = plt.plot(mse[3], 'v-', color='purple')
 l4, = plt.plot(mse[4], 'D-', color='blue')
-plt.xlabel('Fourier divider', fontsize=font_size, family=font_type)
+plt.xlabel('Fourier divider d', fontsize=font_size, family=font_type)
 plt.ylabel('MSE score improvement', fontsize=font_size, family=font_type)
 plt.ylim(-0.02, 0.23)
 plt.legend(handles=[l0, l1, l2, l3, l4],
@@ -105,7 +105,7 @@ l1, = plt.plot(mse[1], 'o-', color='orange')
 l2, = plt.plot(mse[2], '^-', color='green')
 l3, = plt.plot(mse[3], 'v-', color='purple')
 l4, = plt.plot(mse[4], 'D-', color='blue')
-plt.xlabel('Sigmoid Temperature', fontsize=font_size, family=font_type)
+plt.xlabel('Sigmoid Temperature T', fontsize=font_size, family=font_type)
 plt.ylabel('MSE score improvement', fontsize=font_size, family=font_type)
 plt.ylim(-0.02, 0.23)
 plt.legend(handles=[l0, l1, l2, l3, l4],
@@ -115,5 +115,26 @@ plt.xticks([0, 1, 2, 3, 4], [1, 2, 3, 4, 5], fontsize=font_size-5, rotation=1)
 plt.yticks([0, 0.05, 0.10, 0.15, 0.20], fontsize=font_size-5)
 
 plt.savefig("/Users/marc-antoine/Documents/icml/temperature.pdf", dpi=300, bbox_inches = 'tight')
+plt.show()
+
+# Training
+mse = [
+    [0.96, 0.98, 0.95, 0.87, 0.80, 0.785, 0.79, 0.78],
+    [1.06, 1.02, 0.99, 1.01, 0.88, 0.795, 0.764, 0.768],
+]
+mse = np.array(mse)
+plt.figure(1, figsize=(8, 7))
+l0, = plt.plot(mse[0], 'h-', color='red')
+l1, = plt.plot(mse[1], 'o-', color='orange')
+plt.xlabel('Epoch', fontsize=font_size, family=font_type)
+plt.ylabel('MSE score', fontsize=font_size, family=font_type)
+# plt.ylim(-0.02, 0.23)
+plt.legend(handles=[l0, l1],
+           labels=['Teacher Model', 'Student Model'],
+           loc=0, prop=font2)
+plt.xticks([0, 1, 2, 3, 4, 5, 6, 7], [1, 2, 3, 4, 5, 6, 7, 8], fontsize=font_size-5, rotation=1)
+plt.yticks(fontsize=font_size-5)
+
+plt.savefig("/Users/marc-antoine/Documents/icml/training.pdf", dpi=300, bbox_inches = 'tight')
 plt.show()
 

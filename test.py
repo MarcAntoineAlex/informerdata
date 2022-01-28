@@ -7,6 +7,23 @@ from torch.nn.functional import mse_loss
 from torch.fft import fft, ifft, irfft
 from models.model import Fourrier, sigtemp
 
+plt.rcParams["font.family"] = 'Arial'
+plt.rcParams['pdf.fonttype'] = 42
+plt.rcParams['ps.fonttype'] = 42
+
+font_size = 20
+font_type = 'Arial'
+
+font1 = {'family': font_type,
+         'weight': 'normal',
+         'size': font_size,
+         }
+
+font2 = {'family': font_type,
+         'weight': 'normal',
+         'size': 15,
+         }
+
 cos = []
 sin = []
 da, dw = [], []
@@ -21,9 +38,17 @@ for i in range(num):
 for i in range(num):
     print(cos[i])
     f = Fourrier(8360, 40, None, sin[i], cos[i])
-    res = 2 * sigtemp(f(), 1).detach().squeeze().numpy()
+    res = sigtemp(f(), 1).detach().squeeze().numpy()
     # res = f().detach().squeeze().numpy()
-    plt.plot(res)
+    plt.figure(1, figsize=(10, 6))
+    plt.plot(res, label='P', color='black')
+    plt.legend(prop=font2)
+    plt.ylim(0.2, 1)
+    plt.xlabel('$a_j$', fontsize=font_size, family=font_type)
+    plt.ylabel('$p_i(A)$', fontsize=font_size, family=font_type)
+    plt.xticks(fontsize=font_size - 5, rotation=1)
+    plt.yticks(fontsize=font_size - 5)
+    plt.savefig("/Users/marc-antoine/Documents/icml/P(A){}.pdf".format(i), dpi=300, bbox_inches='tight')
     plt.show()
 
 
