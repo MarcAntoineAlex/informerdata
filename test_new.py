@@ -35,28 +35,16 @@ import numpy as np
 #
 # plt.savefig('/Users/marc-antoine/Documents/temp/shangyong.jpg')
 # plt.show()
-x = np.linspace(0, 200, 10000)
-y = np.zeros_like(x)
-for i in range(len(x)):
-    # if x[i] != -50:
-    #     y[i] += np.sin(x[i]+50)/(x[i]+50)
-    # else:
-    #     y[i] += 1
+x = np.linspace(0, 10, 10000)
+c = np.cos(100*x)
+y = np.exp(-np.power(x, 2))
 
-    if x[i] != 50:
-        y[i] += np.sin(x[i] - 50) / (x[i] - 50)
-    else:
-        y[i] += 1
-
-plt.plot(x, y)
+plt.plot(x, y*c)
+plt.xlim(0, 4)
 plt.show()
 
 y = idct(y)
 plt.plot(x, y)
-plt.xlim(0, 5)
+plt.xlim(0, 0.05)
 plt.show()
 
-print(x)
-x = 24
-y = str(x)
-print(y)

@@ -65,16 +65,18 @@ font2 = {'weight': 'normal',
          'size': 14,
          }
 # I(t)
-plt.plot(temps, volt+0.6, linewidth=0.5, color='black')
+plt.plot(temps, (volt+0.55)*1.01+0.24, linewidth=0.5, color='black')
+# plt.plot(temps, volt+0.6, linewidth=0.5, color='black')
 plt.xlabel('T/s', font2)
-plt.ylabel('U/V', font2)
+plt.ylabel('I/cd', font2)
 plt.grid()
-plt.xlim(0, 100)
-plt.ylim(0, 1.2)
+plt.xlim(0, 80)
+plt.ylim(0.2, 1.4)
 plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(t).jpg')
 plt.show()
 
-# I(Delta)
+volt *= 1.01
+# # I(Delta)
 xnew = temps * 0.558 * 2
 xnew -= xnew[np.argmax(volt)]
 # xnew = - np.flipud(xnew[:np.argmax(volt)])
@@ -84,10 +86,10 @@ plt.plot(xnew, volt, linewidth=0.5, color='black')
 print("DeltaM", xnew[-1]-xnew[0])
 
 plt.xlabel('{}/{}m'.format(chr(916), chr(956)), font2)
-plt.ylabel('U/V', font2)
+plt.ylabel('I/cd', font2)
 plt.grid()
 plt.xlim(xnew[0], xnew[-1])
-plt.ylim(-0.6, 0.6)
+# plt.ylim(-0.6, 0.6)
 plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(delta).jpg')
 plt.show()
 
@@ -111,8 +113,8 @@ plt.plot(x, y, color='black')
 plt.grid()
 plt.xlim(200, 1000)
 plt.xlabel('{}/nm'.format(chr(955)), font2)
-plt.ylabel('U/V', font2)
-# plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(lambda).jpg')
+plt.ylabel('I/cd', font2)
+plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(lambda).jpg')
 plt.show()
 for i in range(len(x)-1):
     if (y[i] - y[M]/2)*(y[i+1] - y[M]/2) <= 0:
@@ -124,8 +126,8 @@ x = np.reciprocal(x) * 1000
 plt.plot(x, y, color='black')
 plt.grid()
 plt.xlim(1, 5)
-plt.xlabel('{}*{}m'.format(chr(963), chr(956)), font2)
-plt.ylabel('U/V', font2)
+plt.xlabel('{}/{}m'.format(chr(963), chr(956)) + '$^{-1}$', font2)
+plt.ylabel('I/cd', font2)
 plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(sigma).jpg')
 plt.show()
 
@@ -140,7 +142,7 @@ plt.plot(x, y1, color='black')
 plt.grid()
 plt.xlim(200, 1000)
 plt.xlabel('{}/nm'.format(chr(955)), font2)
-plt.ylabel('U/V', font2)
+plt.ylabel('I/cd', font2)
 plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/gch/I(lambda)positive.jpg')
 plt.show()
 
@@ -171,28 +173,28 @@ plt.show()
 
 #
 ## speed
-# data = pd.read_csv('/Users/marc-antoine/Documents/S7/物理实验/Nouveau dossier/speed.csv', sep=';')
-# temps = data['Temps'].to_numpy()
-# temps = temps * 535/558
-# volt = data['EA1'].to_numpy()
-# plt.figure(figsize=(40, 25))
-# plt.tick_params(labelsize=70)
-# plt.xlim(0, 12)
-# font2 = {'weight': 'normal',
-#          'size': 92,
-#          }
-# plt.xlabel('T/s', font2)
-# plt.ylabel('U/V', font2)
-# plt.grid()
-# bwith = 3
-# ax = plt.gca()
-# ax.spines['bottom'].set_linewidth(bwith)
-# ax.spines['left'].set_linewidth(bwith)
-# ax.spines['top'].set_linewidth(bwith)
-# ax.spines['right'].set_linewidth(bwith)
-#
-# plt.plot(temps, volt, color='black',linewidth=2.5)
-# plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/Nouveau dossier/speed.jpg')
-# plt.show()
-# print(temps.shape)
-# print(temps[np.argmax(volt[11700:])+11700])
+data = pd.read_csv('/Users/marc-antoine/Documents/S7/物理实验/Nouveau dossier/speed.csv', sep=';')
+temps = data['Temps'].to_numpy()
+temps = temps * 535/558
+volt = data['EA1'].to_numpy()
+plt.figure(figsize=(40, 25))
+plt.tick_params(labelsize=70)
+plt.xlim(0, 12)
+font2 = {'weight': 'normal',
+         'size': 92,
+         }
+plt.xlabel('T/s', font2)
+plt.ylabel('I/cd', font2)
+plt.grid()
+bwith = 3
+ax = plt.gca()
+ax.spines['bottom'].set_linewidth(bwith)
+ax.spines['left'].set_linewidth(bwith)
+ax.spines['top'].set_linewidth(bwith)
+ax.spines['right'].set_linewidth(bwith)
+
+plt.plot(temps, (volt * 2.26 + 8)/2.26*1.01+0.24, color='black',linewidth=2.5)
+plt.savefig('/Users/marc-antoine/Documents/S7/物理实验/Nouveau dossier/speed.jpg')
+plt.show()
+print(temps.shape)
+print(temps[np.argmax(volt[11700:])+11700])

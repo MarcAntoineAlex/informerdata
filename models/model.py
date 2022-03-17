@@ -25,6 +25,8 @@ class Informer(nn.Module):
         # Encoding
         self.enc_embedding = DataEmbedding(enc_in, d_model, embed, freq, dropout)
         self.dec_embedding = DataEmbedding(dec_in, d_model, embed, freq, dropout)
+        self.decomp = series_decomp(args.moving_avg)
+
         # Attention
         Attn = ProbAttention if attn=='prob' else FullAttention
         # Encoder
@@ -44,7 +46,7 @@ class Informer(nn.Module):
                     d_model
                 ) for l in range(e_layers-1)
             ] if distil else None,
-            norm_layer=torch.nn.LayerNorm(d_model)
+            norm_layer=my_Layernorm(d_model)
         )
         # Decoder
         self.decoder = Decoder(
@@ -58,10 +60,12 @@ class Informer(nn.Module):
                     d_ff,
                     dropout=dropout,
                     activation=activation,
+                    moving_avg=args.moving_avg,
+                    c_out=c_out
                 )
                 for l in range(d_layers)
             ],
-            norm_layer=torch.nn.LayerNorm(d_model)
+            norm_layer=my_Layernorm(d_model)
         )
         self.device = device
         # self.end_conv1 = nn.Conv1d(in_channels=label_len+out_len, out_channels=out_len, kernel_size=1, bias=True)
@@ -79,12 +83,20 @@ class Informer(nn.Module):
 
     def forward(self, x_enc, x_mark_enc, x_dec, x_mark_dec,
                 enc_self_mask=None, dec_self_mask=None, dec_enc_mask=None):
+        # decomp init
+        mean = torch.mean(x_enc, dim=1).unsqueeze(1).repeat(1, self.pred_len, 1)
+        zeros = torch.zeros([x_dec.shape[0], self.pred_len, x_dec.shape[2]]).cuda()
+        seasonal_init, trend_init = self.decomp(x_enc)
+        # decoder input
+        trend_init = torch.cat([trend_init[:, -self.label_len:, :], mean], dim=1)
+        seasonal_init = torch.cat([seasonal_init[:, -self.label_len:, :], zeros], dim=1)
+        # enc
         enc_out = self.enc_embedding(x_enc, x_mark_enc)
         enc_out, attns = self.encoder(enc_out, attn_mask=enc_self_mask)
 
-        dec_out = self.dec_embedding(x_dec, x_mark_dec)
-        dec_out = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask)
-        dec_out = self.projection(dec_out)
+        dec_out = self.dec_embedding(seasonal_init, x_mark_dec)
+        seasonal_part, trend_part = self.decoder(dec_out, enc_out, x_mask=dec_self_mask, cross_mask=dec_enc_mask, trend=trend_init)
+        dec_out = self.projection(seasonal_part) + trend_part
 
         # dec_out = self.end_conv1(dec_out)
         # dec_out = self.end_conv2(dec_out.transpose(2,1)).transpose(1,2)
@@ -255,6 +267,50 @@ class Normal(nn.Module):
         return (result.sum(dim=-1)+1)[:, None, None]
 
 
+class my_Layernorm(nn.Module):
+    """
+    Special designed layernorm for the seasonal part
+    """
+    def __init__(self, channels):
+        super(my_Layernorm, self).__init__()
+        self.layernorm = nn.LayerNorm(channels)
+
+    def forward(self, x):
+        x_hat = self.layernorm(x)
+        bias = torch.mean(x_hat, dim=1).unsqueeze(1).repeat(1, x.shape[1], 1)
+        return x_hat - bias
+
+
+class series_decomp(nn.Module):
+    """
+    Series decomposition block
+    """
+    def __init__(self, kernel_size):
+        super(series_decomp, self).__init__()
+        self.moving_avg = moving_avg(kernel_size, stride=1)
+
+    def forward(self, x):
+        moving_mean = self.moving_avg(x)
+        res = x - moving_mean
+        return res, moving_mean
+
+class moving_avg(nn.Module):
+    """
+    Moving average block to highlight the trend of time series
+    """
+    def __init__(self, kernel_size, stride):
+        super(moving_avg, self).__init__()
+        self.kernel_size = kernel_size
+        self.avg = nn.AvgPool1d(kernel_size=kernel_size, stride=stride, padding=0)
+
+    def forward(self, x):
+        # padding on the both ends of time series
+        front = x[:, 0:1, :].repeat(1, (self.kernel_size - 1) // 2, 1)
+        end = x[:, -1:, :].repeat(1, (self.kernel_size - 1) // 2, 1)
+        x = torch.cat([front, x, end], dim=1)
+        x = self.avg(x.permute(0, 2, 1))
+        x = x.permute(0, 2, 1)
+        return x
 
 
 

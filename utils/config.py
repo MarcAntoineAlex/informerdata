@@ -120,7 +120,7 @@ class MInformerConfig(BaseConfig):
         parser.add_argument('--trigger', action='store_true', default=False)
         parser.add_argument('--teacher_head', type=int, default=8)
         parser.add_argument('--student_head', type=int, default=8)
-
+        parser.add_argument('--moving_avg', type=int, default=5)
         # SCINet
         parser.add_argument('--concat_len', type=int, default=0)
         parser.add_argument('--single_step', type=int, default=0)
